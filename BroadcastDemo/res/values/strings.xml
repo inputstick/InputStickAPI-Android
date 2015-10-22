@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BroadcastDemo</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_demo1">Demo1Activity</string>
+    <string name="title_activity_demo">DemoActivity</string>
+    <string name="title_activity_demo2">Demo2Activity</string>
+    <string name="title_activity_demo3">Demo3Activity</string>
+
+</resources>
