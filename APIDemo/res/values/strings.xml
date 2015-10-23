@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">InputStick API Demo</string>
+    <string name="title_activity_keyboard_demo">Keyboard Demo</string>
+    <string name="title_activity_mouse_demo">Mouse Demo</string>
+    <string name="title_activity_media_demo">Media Demo</string>
+    <string name="title_activity_gamepad_demo">Gamepad Demo</string>
+    
+    <string-array name="array_layouts">
+        <item>en-US</item>
+        <item>pl-PL</item>
+        <item>de-DE</item>
+        <item>de-DE-mac</item>        
+        <item>da-DK</item>        
+        <item>en-GB</item>
+        <item>fi-FI</item>
+        <item>fr-FR</item>
+        <item>fr-CH</item>                
+        <item>de-CH</item>
+        <item>he-IL</item>
+        <item>it-IT</item>
+        <item>nb-NO</item>        
+        <item>pt-BR</item>
+        <item>ru-RU</item>
+        <item>sk-SK</item>
+        <item>es-ES</item>
+        <item>sv-SE</item>
+        <item>en-DV</item>
+    </string-array>
+
+</resources>
