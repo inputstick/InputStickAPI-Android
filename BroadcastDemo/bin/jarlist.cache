@@ -1,9 +1,9 @@
 # cache for current jar dependency. DO NOT EDIT.
 # format is <lastModified> <length> <SHA-1> <path>
 # Encoding is UTF-8
+1444476605074 1294803 0725d32f682f72bdfb3f61a2cd04dc3763710b6c C:\Users\Kuba\git\InputStickAPI-Android\BroadcastDemo\libs\android-support-v4.jar
 1444476605074 1294803 0725d32f682f72bdfb3f61a2cd04dc3763710b6c C:\Users\Kuba\eclipse\appcompat_v7\libs\android-support-v4.jar
 1444476605074 1294803 0725d32f682f72bdfb3f61a2cd04dc3763710b6c C:\Users\Kuba\git\InputStickAPI-Android\InputStickAPI\libs\android-support-v4.jar
-1444476605074 1294803 0725d32f682f72bdfb3f61a2cd04dc3763710b6c C:\Users\Kuba\eclipse\BroadcastDemo\libs\android-support-v4.jar
-1444476605087 575862 34bb698f35fc1d948a9474729ed96492c4cd36f6 C:\Users\Kuba\eclipse\BroadcastDemo\libs\android-support-v7-appcompat.jar
 1444476605087 575862 34bb698f35fc1d948a9474729ed96492c4cd36f6 C:\Users\Kuba\eclipse\appcompat_v7\libs\android-support-v7-appcompat.jar
 1444476605087 575862 34bb698f35fc1d948a9474729ed96492c4cd36f6 C:\Users\Kuba\git\InputStickAPI-Android\InputStickAPI\libs\android-support-v7-appcompat.jar
+1444476605087 575862 34bb698f35fc1d948a9474729ed96492c4cd36f6 C:\Users\Kuba\git\InputStickAPI-Android\BroadcastDemo\libs\android-support-v7-appcompat.jar
