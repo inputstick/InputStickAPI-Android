@@ -99,6 +99,7 @@ public class BT40Connection extends BTConnection {
     		//return;
 	    	if (out.length == 1) {
 	    		txBuffer.add(out);
+	    		sendNext();
 	    		return;
 	    	}
 	    	if (out.length == 1026) {
@@ -113,6 +114,7 @@ public class BT40Connection extends BTConnection {
 	    			offset += 16;
 	    			txBuffer.add(tmp);
 	    		}
+	    		sendNext();
 	    		return;
 	    	}
     	}
