@@ -318,6 +318,7 @@ public abstract class KeyboardLayout {
 		for (int i = 0; i < fastLUT.length; i++) {
 			if (fastLUT[i][0] == c) {					
 				modifiers = (byte)fastLUT[i][1];
+				modifiers |= additionalModifierKeys;
 				key = (byte)fastLUT[i][2];
 				deadKeyModifiers = (byte)fastLUT[i][3];
 				deadKey = (byte)fastLUT[i][4];
@@ -327,6 +328,7 @@ public abstract class KeyboardLayout {
 					t.addReport(new KeyboardReport(deadKeyModifiers, deadKey));
 					t.addReport(new KeyboardReport());
 				}
+				
 				t.addReport(new KeyboardReport(modifiers, (byte)0));
 				t.addReport(new KeyboardReport(modifiers, key));
 				t.addReport(new KeyboardReport());															
