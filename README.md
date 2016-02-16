@@ -81,8 +81,10 @@ customReport((byte)0x01, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0
 For more details and usage examples, please take a look at Android demo applications.
 [Download section](http://inputstick.com/download)
 
-## Known bugs:
-Due to a bug in Bluetooth Stack in Android OS, calling type() methods from non-UI thread can result in missing characters when BT4.0 InputStick is used. Latest firmware (0.98) allows to create fix for the bug.
+## Known issues and bugs:
+* Due to a bug in Bluetooth Stack in Android OS, calling type() methods from non-UI thread can result in missing characters when BT4.0 InputStick is used. Firmware (0.98) will allow to fix the bug.
+* Applications like Asus Auto-start Manager can prevent InputStickUtility from receiving broadcasts. Create an exception or use `com.inputstick.api.basic.InputStickHID`
+* Bluetooth performance can be reduced (lower transfer rate, increased latency) when other BT device (like headset) is used at the same time.
 
 ## InputStickUtility:
 It is highly recommended that InputStickUtility application is installed (available on GooglePlay). It allows to make application development much easier. 
