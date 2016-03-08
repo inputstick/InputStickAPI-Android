@@ -3,6 +3,8 @@
 ## About InputStick:
 InputStick is an Android-compatible USB receiver. It allows to use your smartphone as a wireless keyboard, mouse, multimedia and game controller. 
 
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/GxqTSWtliRA/0.jpg)](http://www.youtube.com/watch?v=GxqTSWtliRA)
+
 ##How does it work?
 InputStick acts as a proxy between USB host and Android device:
 * USB host detects is as a generic HID device. It knows nothing about Bluetooth interface. As a result, in most cases, there is no need to install any drivers or configure anything.
