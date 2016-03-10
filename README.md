@@ -36,7 +36,9 @@ Eclipse: Import InputStickAPI into workspace, add InputStickAPI as a library to 
 
 or to get started ASAP you need to copy only following files into your project:
 [com.inputstick.api.broadcast.InputStickBroadcast](https://github.com/inputstick/InputStickAPI-Android/blob/master/InputStickAPI/src/com/inputstick/api/broadcast/InputStickBroadcast.java) (required)
+
 [com.inputstick.api.DownloadDialog](https://github.com/inputstick/InputStickAPI-Android/blob/master/InputStickAPI/src/com/inputstick/api/DownloadDialog.java) (option, you can notify user some other way)
+
 [com.inputstick.api.hid.HIDKeycodes](https://github.com/inputstick/InputStickAPI-Android/blob/master/InputStickAPI/src/com/inputstick/api/hid/HIDKeycodes.java) (option, only if you need keycodes for pressing single keys, like "Enter", "Esc", arrows etc.)
 
 It is recommended to start with: `com.inputstick.api.broadcast.InputStickBroadcast`
