@@ -30,7 +30,16 @@ Remember: InputStick behaves EXACTLY as a USB keyboard and mouse - nothing more 
 [GooglePlay](https://play.google.com/store/apps/developer?id=InputStick)
 
 ## Getting started:
+Be sure to check demo apps for more info and implementation examples.
+
 Eclipse: Import InputStickAPI into workspace, add InputStickAPI as a library to your project: Project -> Properties -> Android -> Add.
+
+or to get started ASAP you need to copy only following files into your project:
+[com.inputstick.api.broadcast.InputStickBroadcast](https://github.com/inputstick/InputStickAPI-Android/blob/master/InputStickAPI/src/com/inputstick/api/broadcast/InputStickBroadcast.java) (required)
+
+[com.inputstick.api.DownloadDialog](https://github.com/inputstick/InputStickAPI-Android/blob/master/InputStickAPI/src/com/inputstick/api/DownloadDialog.java) (option, you can notify user some other way)
+
+[com.inputstick.api.hid.HIDKeycodes](https://github.com/inputstick/InputStickAPI-Android/blob/master/InputStickAPI/src/com/inputstick/api/hid/HIDKeycodes.java) (option, only if you need keycodes for pressing single keys, like "Enter", "Esc", arrows etc.)
 
 It is recommended to start with: `com.inputstick.api.broadcast.InputStickBroadcast`
 this can be as easy as a single line of code (InputStickUtility takes care of everything else):
@@ -38,7 +47,7 @@ this can be as easy as a single line of code (InputStickUtility takes care of ev
 InputStickBroadcast.type(context, "text to type", "en-US);
 ```
 
-If you need more control:
+If you need more control, use "full" API (requires more code to implement):
 
 Managing connection:
 `com.inputstick.api.basic.InputStickHID`
