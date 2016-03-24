@@ -3,6 +3,8 @@
 ## About InputStick:
 InputStick is an Android-compatible USB receiver. It allows to use your smartphone as a wireless keyboard, mouse, multimedia and game controller. 
 
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/_Y0ze3RHNCY/0.jpg)](http://www.youtube.com/watch?v=_Y0ze3RHNCY)
+
 ##How does it work?
 InputStick acts as a proxy between USB host and Android device:
 * USB host detects is as a generic HID device. It knows nothing about Bluetooth interface. As a result, in most cases, there is no need to install any drivers or configure anything.
@@ -28,7 +30,16 @@ Remember: InputStick behaves EXACTLY as a USB keyboard and mouse - nothing more 
 [GooglePlay](https://play.google.com/store/apps/developer?id=InputStick)
 
 ## Getting started:
+Be sure to check demo apps for more info and implementation examples.
+
 Eclipse: Import InputStickAPI into workspace, add InputStickAPI as a library to your project: Project -> Properties -> Android -> Add.
+
+or to get started ASAP you need to copy only following files into your project:
+[com.inputstick.api.broadcast.InputStickBroadcast](https://github.com/inputstick/InputStickAPI-Android/blob/master/InputStickAPI/src/com/inputstick/api/broadcast/InputStickBroadcast.java) (required)
+
+[com.inputstick.api.DownloadDialog](https://github.com/inputstick/InputStickAPI-Android/blob/master/InputStickAPI/src/com/inputstick/api/DownloadDialog.java) (option, you can notify user some other way)
+
+[com.inputstick.api.hid.HIDKeycodes](https://github.com/inputstick/InputStickAPI-Android/blob/master/InputStickAPI/src/com/inputstick/api/hid/HIDKeycodes.java) (option, only if you need keycodes for pressing single keys, like "Enter", "Esc", arrows etc.)
 
 It is recommended to start with: `com.inputstick.api.broadcast.InputStickBroadcast`
 this can be as easy as a single line of code (InputStickUtility takes care of everything else):
@@ -36,7 +47,7 @@ this can be as easy as a single line of code (InputStickUtility takes care of ev
 InputStickBroadcast.type(context, "text to type", "en-US);
 ```
 
-If you need more control:
+If you need more control, use "full" API (requires more code to implement):
 
 Managing connection:
 `com.inputstick.api.basic.InputStickHID`
@@ -81,8 +92,10 @@ customReport((byte)0x01, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0
 For more details and usage examples, please take a look at Android demo applications.
 [Download section](http://inputstick.com/download)
 
-## Known bugs:
-Due to a bug in Bluetooth Stack in Android OS, calling type() methods from non-UI thread can result in missing characters when BT4.0 InputStick is used. Latest firmware (0.98) allows to create fix for the bug.
+## Known issues and bugs:
+* Due to a bug in Bluetooth Stack in Android OS, calling type() methods from non-UI thread can result in missing characters when BT4.0 InputStick is used. Firmware (0.98) will allow to fix the bug.
+* Applications like Asus Auto-start Manager can prevent InputStickUtility from receiving broadcasts. Create an exception or use `com.inputstick.api.basic.InputStickHID`
+* Bluetooth performance can be reduced (lower transfer rate, increased latency) when other BT device (like headset) is used at the same time.
 
 ## InputStickUtility:
 It is highly recommended that InputStickUtility application is installed (available on GooglePlay). It allows to make application development much easier. 
@@ -118,15 +131,15 @@ List of currently available keyboard layouts:
 * en-US 			- English (United States),
 * es-ES 			- Spanish (Spain),
 * fi-FI 			- Finnish (Finland),
-* fr-FR 			- French (France),
 * fr-CA 			- French (Canada),
 * fr-CH 			- French (Switzerland),
+* fr-FR 			- French (France),
 * he-IL 			- Hebrew (Israel),
 * it-IT 			- Italian (Italy),
 * nb-NO 			- Norwegian, Bokmal (Norway),
 * pl-PL 			- Polish (Poland),
-* pt-PT 			- Portuguese (Portugal),
 * pt-BR 			- Portuguese (Brazil),
+* pt-PT 			- Portuguese (Portugal),
 * ru-RU 			- Russian (Russia),
 * sk-SK 			- Slovak (Slovakia),
 * sv-SE 			- Swedish (Sweden).
