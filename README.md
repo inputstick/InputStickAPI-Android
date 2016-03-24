@@ -131,6 +131,7 @@ List of currently available keyboard layouts:
 * en-US 			- English (United States),
 * es-ES 			- Spanish (Spain),
 * fi-FI 			- Finnish (Finland),
+* fr-CA 			- French (Canada),
 * fr-CH 			- French (Switzerland),
 * fr-FR 			- French (France),
 * he-IL 			- Hebrew (Israel),
@@ -138,6 +139,7 @@ List of currently available keyboard layouts:
 * nb-NO 			- Norwegian, Bokmal (Norway),
 * pl-PL 			- Polish (Poland),
 * pt-BR 			- Portuguese (Brazil),
+* pt-PT 			- Portuguese (Portugal),
 * ru-RU 			- Russian (Russia),
 * sk-SK 			- Slovak (Slovakia),
 * sv-SE 			- Swedish (Sweden).
