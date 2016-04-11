@@ -429,7 +429,11 @@ public abstract class KeyboardLayout {
 				return CanadianFrenchLayout.getInstance();
 			} else if (locale.equalsIgnoreCase(PortugueseLayout.LOCALE_NAME)) {
 				return PortugueseLayout.getInstance();
-			} 																	
+			} else if (locale.equalsIgnoreCase(HungarianLayout.LOCALE_NAME)) {
+				return HungarianLayout.getInstance();
+			} else if (locale.equalsIgnoreCase(DutchLayout.LOCALE_NAME)) {
+				return DutchLayout.getInstance();
+			} 	 																			
 		}
 
 		return UnitedStatesLayout.getInstance();
