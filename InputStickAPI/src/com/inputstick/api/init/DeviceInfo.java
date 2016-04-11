@@ -11,23 +11,28 @@ public class DeviceInfo {
 	private boolean passwordProtected;
 	
 	public DeviceInfo(byte[] data) {
-		//cmd, param
-		firmwareType = data[2];
-		versionMajor = data[3];
-		versionMinor = data[4];
-		versionHardware = data[5];
-		
-		
-		//6,7,8,9		
-		//10,11,12,13		
-		//14,15,16,17
-		
-		//18,19
-		securityStatus = data[19];
-		if (data[20] == 0) {
-			passwordProtected = false;
-		} else {
-			passwordProtected = true;
+		if (data != null) {		
+			//cmd, param
+			if (data.length > 5) {
+				firmwareType = data[2];
+				versionMajor = data[3];
+				versionMinor = data[4];
+				versionHardware = data[5];
+			}		
+					
+			//6,7,8,9		
+			//10,11,12,13		
+			//14,15,16,17
+			
+			//18,19		
+			if (data.length > 20) {
+				securityStatus = data[19];
+				if (data[20] == 0) {
+					passwordProtected = false;
+				} else {
+					passwordProtected = true;
+				}
+			}
 		}
 	}
 	
