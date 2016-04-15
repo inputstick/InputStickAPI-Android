@@ -73,7 +73,7 @@ public class FrenchLayout extends KeyboardLayout {
 		{   91,	   64,	   34,	    0,	    0	},	// [
 		{   92,	   64,	   37,	    0,	    0	},	// \
 		{   93,	   64,	   45,	    0,	    0	},	// ]
-		{   94,	    0,	   44,	   64,	   38	},	// ^
+		{   94,	   64,	   38,	    0,	    0	},	// ^  fixed! "deadkey" is duplicated in this layout! 
 		{   95,	    0,	   37,	    0,	    0	},	// _
 		{   96,	    0,	   44,	   64,	   36	},	// `
 		{   97,	    0,	   20,	    0,	    0	},	// a
@@ -262,7 +262,7 @@ public class FrenchLayout extends KeyboardLayout {
 	};
 	
 	public static final int DEADKEYS[] = {
-		0x007e, 0x0060, 0x005e, 0x00a8, 0x007e
+		0x007e, 0x0060, 0x005e, 0x00a8
 	};
 	
 	public static final int DEADKEY_LUT[][] = {
