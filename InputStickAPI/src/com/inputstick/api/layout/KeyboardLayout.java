@@ -145,7 +145,7 @@ public abstract class KeyboardLayout {
 	public abstract char getChar(int scanCode, boolean capsLock, boolean shift, boolean altGr);
 	
 	public void type(int[][] fastLUT, String text, byte modifiers) {
-		if (InputStickHID.getState() == ConnectionManager.STATE_READY) {			
+		if ((InputStickHID.getState() == ConnectionManager.STATE_READY) && (text != null)) {			
 			char[] chars = text.toCharArray();
 			HIDTransaction t;
 			for (char c : chars) {

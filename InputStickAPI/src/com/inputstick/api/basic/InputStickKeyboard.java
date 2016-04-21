@@ -75,23 +75,24 @@ public class InputStickKeyboard {
 	public static void typeASCII(String toType) {
 		int keyCode;
 		int index;
-		
-		for (int i = 0; i < toType.length(); i++) {					
-			index = toType.charAt(i);
-			if (index == '\n') {
-				pressAndRelease(NONE, HIDKeycodes.KEY_ENTER);
-			} else if (index == '\t') {
-				pressAndRelease(NONE, HIDKeycodes.KEY_TAB);
-			} else {			
-				if (index > 127) {
-					index = 127;
-				}
-				keyCode = HIDKeycodes.getKeyCode(index);
-				if (keyCode > 128) {
-					keyCode -= 128;
-					pressAndRelease(HIDKeycodes.SHIFT_LEFT, (byte)keyCode);
-				} else {
-					pressAndRelease(NONE, (byte)keyCode);
+		if (toType != null) {
+			for (int i = 0; i < toType.length(); i++) {					
+				index = toType.charAt(i);
+				if (index == '\n') {
+					pressAndRelease(NONE, HIDKeycodes.KEY_ENTER);
+				} else if (index == '\t') {
+					pressAndRelease(NONE, HIDKeycodes.KEY_TAB);
+				} else {			
+					if (index > 127) {
+						index = 127;
+					}
+					keyCode = HIDKeycodes.getKeyCode(index);
+					if (keyCode > 128) {
+						keyCode -= 128;
+						pressAndRelease(HIDKeycodes.SHIFT_LEFT, (byte)keyCode);
+					} else {
+						pressAndRelease(NONE, (byte)keyCode);
+					}
 				}
 			}
 		}
