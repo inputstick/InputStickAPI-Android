@@ -7,7 +7,6 @@ public class HungarianLayout extends KeyboardLayout {
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}
 	//hu-HU
 	private static final int[][] FAST_LUT = {
-		{    0,	    0,	   53,	    0,	    0	},	// 
 		{   27,	    1,	   47,	    0,	    0	},	// 
 		{   28,	    1,	   49,	    0,	    0	},	// 
 		{   29,	    1,	   48,	    0,	    0	},	// 
@@ -27,6 +26,7 @@ public class HungarianLayout extends KeyboardLayout {
 		{   45,	    0,	   56,	    0,	    0	},	// -
 		{   46,	    0,	   55,	    0,	    0	},	// .
 		{   47,	    2,	   35,	    0,	    0	},	// /
+		{   48,	    0,	   53,	    0,	    0	},	// 0
 		{   49,	    0,	   30,	    0,	    0	},	// 1
 		{   50,	    0,	   31,	    0,	    0	},	// 2
 		{   51,	    0,	   32,	    0,	    0	},	// 3
@@ -244,7 +244,7 @@ public class HungarianLayout extends KeyboardLayout {
 		/*	26	*/	{	1	,	(int)'l'	,	(int)'L'	,	-1		,	0x0141	,	-1		}	,
 		/*	27	*/	{	1	,	0x00e9		,	0x00c9		,	-1		,	0x0024	,	-1		}	,
 		/*	28	*/	{	1	,	0x00e1		,	0x00c1		,	-1		,	0x00df	,	-1		}	,
-		/*	29	*/	{	0	,	0			,	0x00a7		,	-1		,	-1		,	-1		}	,
+		/*	29	*/	{	0	,	(int)'0' /*0*/			,	0x00a7		,	-1		,	-1		,	-1		}	,
 		/*	2a	*/	{	-1	,	0			,	0			,	0		,	0		,	0		}	,
 		/*	2b	*/	{	1	,	0x0171		,	0x0170		,	0x001c	,	0x00a4	,	-1		}	,
 		/*	2c	*/	{	1	,	(int)'y'	,	(int)'Y'	,	-1		,	0x003e	,	-1		}	,
