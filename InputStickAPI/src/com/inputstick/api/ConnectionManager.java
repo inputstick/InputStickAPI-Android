@@ -59,8 +59,7 @@ public abstract class ConnectionManager {
 	
 	public int getErrorCode() {
 		return mErrorCode;
-	}
-	
+	}	
 	
 	protected void onData(byte[] data) {
 		for (InputStickDataListener listener : mDataListeners) {

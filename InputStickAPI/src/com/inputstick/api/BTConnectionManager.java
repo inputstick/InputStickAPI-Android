@@ -61,7 +61,6 @@ public class BTConnectionManager extends ConnectionManager implements InitManage
 	
 	private void onConnected() {		
 		stateNotify(ConnectionManager.STATE_CONNECTED);
-		//mInitManager.startTimeoutCountdown(InitManager.DEFAULT_INIT_TIMEOUT);
 		mInitManager.onConnected();
 	}
 	
