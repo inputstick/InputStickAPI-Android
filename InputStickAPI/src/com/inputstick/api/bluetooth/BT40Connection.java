@@ -17,6 +17,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.inputstick.api.InputStickError;
 import com.inputstick.api.Util;
@@ -57,13 +58,13 @@ public class BT40Connection extends BTConnection {
 			mBluetoothGatt = device.connectGatt(mCtx, false, mGattCallback);
 			
 			isConnecting = true;
-			handler = new Handler();
+			handler = new Handler(Looper.getMainLooper());
 			handler.postDelayed(new Runnable() {
 			    @Override
 			    public void run() {
 					if (isConnecting) {
 						disconnect();
-						mBTservice.connectionFailed(true, 0);
+						mBTservice.connectionFailed(true, InputStickError.ERROR_BLUETOOTH_CONNECTION_FAILED);
 					}
 			    }
 			}, CONNECTION_TIMEOUT);
@@ -199,7 +200,9 @@ public class BT40Connection extends BTConnection {
 			if (newState == BluetoothProfile.STATE_CONNECTED) {
 				isConnecting = false;
 				Util.log("Connected to GATT server.");
-				Util.log("Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
+				if (mBluetoothGatt != null) {
+					Util.log("Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
+				}
 			} else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 				isConnecting = false;
 				Util.log("Disconnected from GATT server.");
@@ -247,7 +250,7 @@ public class BT40Connection extends BTConnection {
 		                canSend = true;
 		                sendNext();
 			            
-			            mBTservice.connectedEstablished();
+			            mBTservice.connectionEstablished();
 		            } else {
 		            	mBTservice.connectionFailed(false, InputStickError.ERROR_BLUETOOTH_BT40_NO_SPP_SERVICE);
 		            }

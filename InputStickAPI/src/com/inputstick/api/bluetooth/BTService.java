@@ -52,7 +52,7 @@ public class BTService {
 				final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
 				if ((state == BluetoothAdapter.STATE_ON)  && (turnBluetoothOn)) {					
 					turnBluetoothOn = false;					
-					connect(false);
+					doConnect(false);
 				}
 			}
 		}
@@ -88,7 +88,7 @@ public class BTService {
         return mLastEvent;
     }    
     
-    private void connect(boolean reconnecting) {
+    private void doConnect(boolean reconnecting) {
     	if (reconnecting) {
     		retryCnt++;
     	} else {	
@@ -106,7 +106,7 @@ public class BTService {
     
     public synchronized void connect(String mac, boolean doNotAsk) {
     	connect(mac, doNotAsk, false);
-	}
+	}    
     
     public synchronized void connect(String mac, boolean doNotAsk, boolean bt40) {
     	try {
@@ -118,7 +118,7 @@ public class BTService {
 				BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 				if (mBluetoothAdapter == null) {
 					event(BTService.EVENT_ERROR, InputStickError.ERROR_BLUETOOTH_NOT_SUPPORTED);
-				} else {				
+				} else {
 					if (bt40) {
 						mBTConnection = new BT40Connection(mApp, this, mMac, mUseReflection);
 					} else {
@@ -126,7 +126,7 @@ public class BTService {
 					}			
 					
 					if (mBluetoothAdapter.isEnabled()) {	
-						connect(false);					
+						doConnect(false);					
 					} else {					
 						//enableBluetooth(doNotAsk); :
 				    	if (mApp != null) {
@@ -175,11 +175,11 @@ public class BTService {
     
 
     
-    protected synchronized void connectedEstablished() {
-    	removeReceiver(); //TODO
+    protected synchronized void connectionEstablished() {
+    	removeReceiver(); //TODO    	
     	mPacketReader = new PacketReader(this, mHandler);    	
         timeout = 0;
-        connected = true;        
+        connected = true;       		
         event(EVENT_CONNECTED, 0);        
     }    
     
@@ -193,7 +193,7 @@ public class BTService {
     		if (canRetry) {
 		    	if ((timeout > 0) && (System.currentTimeMillis() < timeout)) {
 		    		Util.log("RETRY: "+retryCnt + " time left: " + (timeout - System.currentTimeMillis()));    		
-		    		connect(true);
+		    		doConnect(true);
 		    	} else {    	
 		    		event(EVENT_ERROR, InputStickError.ERROR_BLUETOOTH_CONNECTION_FAILED);
 		    	}     

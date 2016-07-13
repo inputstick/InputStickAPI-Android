@@ -125,7 +125,7 @@ public class BT20Connection extends BTConnection {
             //now connected:
             mConnectedThread = new ConnectedThread(mmSocket);
             mConnectedThread.start();            
-            mBTservice.connectedEstablished();
+            mBTservice.connectionEstablished();
         }
 
         public void cancel() {
