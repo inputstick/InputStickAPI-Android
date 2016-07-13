@@ -52,6 +52,9 @@ public class IPCConnectionManager extends ConnectionManager {
 		            	}             	
 		    			break;
 		    		case SERVICE_CMD_STATE:
+		    			if (msg.arg1 == ConnectionManager.STATE_FAILURE) {
+		    				manager.mErrorCode = msg.arg2;
+		    			}
 		    			manager.stateNotify(msg.arg1);
 		    			break;             	
 	        	}  
@@ -70,7 +73,7 @@ public class IPCConnectionManager extends ConnectionManager {
             // unexpectedly disconnected from service
             mService = null;
             mBound = false;
-			mErrorCode = InputStickError.ERROR_ANDROID_SERVICE_DISCONNECTED;
+            mErrorCode = InputStickError.ERROR_ANDROID_SERVICE_DISCONNECTED;
 			stateNotify(STATE_FAILURE);
             stateNotify(STATE_DISCONNECTED);
         }
