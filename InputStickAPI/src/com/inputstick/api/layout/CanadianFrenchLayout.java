@@ -7,11 +7,10 @@ public class CanadianFrenchLayout extends KeyboardLayout {
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}
 	//fr-CA
 	private static final int[][] FAST_LUT = {
-		{    0,	    0,	    4,	    2,	   48	},	// 
-		{   27,	    1,	   47,	    0,	    0	},	// 
-		{   28,	    1,	   49,	    0,	    0	},	// 
-		{   29,	    1,	   48,	    0,	    0	},	// 
-		{   32,	    0,	   44,	    0,	    0	},	//  
+		{	 0,	    0,	    0,	    0,	    0	},	// empty	
+		{	10,	    0,	   40,	    0,	    0	},	// enter
+		{	 9,	    0,	   43,	    0,	    0	},	// tab			
+		{   32,	    0,	   44,	    0,	    0	},	// space
 		{   33,	    2,	   30,	    0,	    0	},	// !
 		{   34,	    2,	   31,	    0,	    0	},	// "
 		{   35,	    0,	   53,	    0,	    0	},	// #

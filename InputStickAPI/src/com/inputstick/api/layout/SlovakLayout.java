@@ -7,13 +7,10 @@ public class SlovakLayout extends KeyboardLayout {
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}
 	//sk-SK
 	private static final int[][] FAST_LUT = {
-		{    0,	    0,	    0,	    0,	    0	},	// empty
-		{    0,	   66,	   30,	    0,	    0	},	// 
-		{    7,	   64,	   30,	    0,	    0	},	// 
-		{   27,	    1,	   48,	    0,	    0	},	// 
-		{   28,	    1,	   49,	    0,	    0	},	// 
-		{   29,	    1,	   51,	    0,	    0	},	// 
-		{   32,	    0,	   44,	    0,	    0	},	//  
+		{	 0,	    0,	    0,	    0,	    0	},	// empty	
+		{	10,	    0,	   40,	    0,	    0	},	// enter
+		{	 9,	    0,	   43,	    0,	    0	},	// tab			
+		{   32,	    0,	   44,	    0,	    0	},	// space
 		{   33,	    2,	   52,	    0,	    0	},	// !
 		{   34,	    2,	   51,	    0,	    0	},	// "
 		{   35,	   64,	   27,	    0,	    0	},	// #
@@ -73,7 +70,7 @@ public class SlovakLayout extends KeyboardLayout {
 		{   89,	    2,	   28,	    0,	    0	},	// Y
 		{   90,	    2,	   29,	    0,	    0	},	// Z
 		{   91,	   64,	    9,	    0,	    0	},	// [
-		{   92,	   64,	   20,	    0,	    0	},	// \
+		{   92,	   64,	   20,	    0,	    0	},	// backslash
 		{   93,	   64,	   10,	    0,	    0	},	// ]
 		{   94,	    0,	   44,	   64,	   32	},	// ^
 		{   95,	    2,	   56,	    0,	    0	},	// _

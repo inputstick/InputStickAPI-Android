@@ -7,11 +7,10 @@ public class DvorakLayout extends KeyboardLayout {
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}
 	//en-DV
 	private static final int[][] FAST_LUT = {
-		{    0,	    0,	    0,	    0,	    0	},	// empty
-		{   27,	    1,	   45,	    0,	    0	},	// 
-		{   28,	    1,	   49,	    0,	    0	},	// 
-		{   29,	    1,	   46,	    0,	    0	},	// 
-		{   32,	    0,	   44,	    0,	    0	},	//  
+		{	 0,	    0,	    0,	    0,	    0	},	// empty	
+		{	10,	    0,	   40,	    0,	    0	},	// enter
+		{	 9,	    0,	   43,	    0,	    0	},	// tab			
+		{   32,	    0,	   44,	    0,	    0	},	// space
 		{   33,	    2,	   30,	    0,	    0	},	// !
 		{   34,	    2,	   20,	    0,	    0	},	// "
 		{   35,	    2,	   32,	    0,	    0	},	// #
@@ -71,7 +70,7 @@ public class DvorakLayout extends KeyboardLayout {
 		{   89,	    2,	   23,	    0,	    0	},	// Y
 		{   90,	    2,	   56,	    0,	    0	},	// Z
 		{   91,	    0,	   45,	    0,	    0	},	// [
-		{   92,	    0,	   49,	    0,	    0	},	// \
+		{   92,	    0,	   49,	    0,	    0	},	// backslash
 		{   93,	    0,	   46,	    0,	    0	},	// ]
 		{   94,	    2,	   35,	    0,	    0	},	// ^
 		{   95,	    2,	   52,	    0,	    0	},	// _

@@ -7,10 +7,10 @@ public class FrenchLinuxLayout extends KeyboardLayout {
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}
 	//fr-FR
 	private static final int[][] FAST_LUT = {
-		{   27,	    1,	   47,	    0,	    0	},	// 
-		{   28,	    1,	   49,	    0,	    0	},	// 
-		{   29,	    1,	   48,	    0,	    0	},	// 
-		{   32,	    0,	   44,	    0,	    0	},	//  
+		{	 0,	    0,	    0,	    0,	    0	},	// empty	
+		{	10,	    0,	   40,	    0,	    0	},	// enter
+		{	 9,	    0,	   43,	    0,	    0	},	// tab			
+		{   32,	    0,	   44,	    0,	    0	},	// space
 		{   33,	    0,	   56,	    0,	    0	},	// !
 		{   34,	    0,	   32,	    0,	    0	},	// "
 		{   35,	   64,	   32,	    0,	    0	},	// #
@@ -72,7 +72,7 @@ public class FrenchLinuxLayout extends KeyboardLayout {
 		{   91,	   64,	   34,	    0,	    0	},	// [
 		{   92,	   64,	   37,	    0,	    0	},	// backslash
 		{   93,	   64,	   45,	    0,	    0	},	// ]
-		{   94,	   64,	   38,	    0,	    0	},	// ^  fixed! "deadkey" is duplicated in this layout! 
+		{   94,	   64,	   38,	    0,	    0	},	// ^  fixed! "deadkey" is duplicated in this layout!  
 		{   95,	    0,	   37,	    0,	    0	},	// _
 		{   96,	   64,	   36,	    0,	    0	},	// `
 		{   97,	    0,	   20,	    0,	    0	},	// a

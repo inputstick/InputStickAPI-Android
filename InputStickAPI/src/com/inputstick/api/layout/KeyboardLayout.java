@@ -2,7 +2,6 @@ package com.inputstick.api.layout;
 
 import com.inputstick.api.ConnectionManager;
 import com.inputstick.api.basic.InputStickHID;
-import com.inputstick.api.basic.InputStickKeyboard;
 import com.inputstick.api.hid.HIDKeycodes;
 import com.inputstick.api.hid.HIDTransaction;
 import com.inputstick.api.hid.KeyboardReport;
@@ -149,15 +148,9 @@ public abstract class KeyboardLayout {
 			char[] chars = text.toCharArray();
 			HIDTransaction t;
 			for (char c : chars) {
-				if (c == '\n') {					
-					InputStickKeyboard.pressAndRelease(HIDKeycodes.NONE, HIDKeycodes.KEY_ENTER);
-				} else if (c == '\t') {
-					InputStickKeyboard.pressAndRelease(HIDKeycodes.NONE, HIDKeycodes.KEY_TAB);
-				} else {				
-					t = getHIDTransaction(fastLUT, c, modifiers);				
-					if (t != null) {
-						InputStickHID.addKeyboardTransaction(t);
-					}
+				t = getHIDTransaction(fastLUT, c, modifiers);				
+				if (t != null) {
+					InputStickHID.addKeyboardTransaction(t);
 				}
 			}
 		}
