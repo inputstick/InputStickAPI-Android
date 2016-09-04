@@ -77,8 +77,8 @@ public class BTService {
     }
     
 
-    protected synchronized void event(int event, int arg1) {
-    	Util.log("event() " + mLastEvent + " -> " + event);
+    protected synchronized void event(int event, int arg1) {    	
+    	Util.log(Util.FLAG_LOG_BT_SERVICE, "event() " + mLastEvent + " -> " + event);	
         mLastEvent = event;        
         Message msg = Message.obtain(null, mLastEvent, arg1, 0);
         mHandler.sendMessage(msg);        
@@ -110,7 +110,7 @@ public class BTService {
     
     public synchronized void connect(String mac, boolean doNotAsk, boolean bt40) {
     	try {
-	    	Util.log("connect to: " + mac + " REFLECTION: " + mUseReflection);
+    		Util.log(Util.FLAG_LOG_BT_SERVICE, "connect to: " + mac + " REFLECTION: " + mUseReflection);
 			disconnecting = false;
 			connected = false;
 			mMac = mac;
@@ -157,7 +157,7 @@ public class BTService {
     }  
     
     public synchronized void disconnect() {
-    	Util.log("disconnect");
+    	Util.log(Util.FLAG_LOG_BT_SERVICE, "disconnect");
         disconnecting = true;
         if (mBTConnection != null) { 
         	mBTConnection.disconnect();
@@ -192,7 +192,7 @@ public class BTService {
     	} else {	
     		if (canRetry) {
 		    	if ((timeout > 0) && (System.currentTimeMillis() < timeout)) {
-		    		Util.log("RETRY: "+retryCnt + " time left: " + (timeout - System.currentTimeMillis()));    		
+		    		Util.log(Util.FLAG_LOG_BT_SERVICE, "RETRY: "+retryCnt + " time left: " + (timeout - System.currentTimeMillis()));    		
 		    		doConnect(true);
 		    	} else {    	
 		    		event(EVENT_ERROR, InputStickError.ERROR_BLUETOOTH_CONNECTION_FAILED);

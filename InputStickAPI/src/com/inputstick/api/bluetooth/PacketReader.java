@@ -43,7 +43,7 @@ public class PacketReader {
     			if (b == Packet.START_TAG) {
     				rxState = RX_LENGTH;
     			} else {
-            		Util.log("Unexpected RX byte" + b);
+            		Util.log(Util.FLAG_LOG_BT_EXCEPTION, "Unexpected byte (" + b + ")");
             		if (b == 0xAF) {
             			rxWdgCnt++;
             		}
@@ -71,12 +71,14 @@ public class PacketReader {
     				rxData[rxPos] = b;
     				rxPos++;
     				if (rxPos == rxLength) {
-    					//done!        					
+    					//done!        			
+    					Util.log(Util.FLAG_LOG_BT_PACKET, "Received (" + rxLength + "B)");
     					mHandler.obtainMessage(BTService.EVENT_DATA, 0, 0, rxData).sendToTarget();
     					rxState = RX_TAG;
     				}
     			} else {
     				//buffer overrun!
+    				Util.log(Util.FLAG_LOG_BT_EXCEPTION, "Buffer overrun");
     				rxState = RX_TAG;
     			}
     			break;

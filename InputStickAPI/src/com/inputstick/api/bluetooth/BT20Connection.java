@@ -31,14 +31,8 @@ public class BT20Connection extends BTConnection {
 
 	@Override
 	public void connect() {
-        if (mConnectThread != null) {
-        	mConnectThread.cancel();
-        	mConnectThread = null;
-        }        
-        if (mConnectedThread != null) {
-        	mConnectedThread.cancel(); 
-        	mConnectedThread = null;
-        }
+		Util.log(Util.FLAG_LOG_BT_CALLS, "Connect (2.0)");		
+		cancelThreads();
         final BluetoothDevice device = mAdapter.getRemoteDevice(mMac);
         if (device != null) {
 	        mConnectThread = new ConnectThread(device, mReflections);
@@ -50,6 +44,7 @@ public class BT20Connection extends BTConnection {
 
 	@Override
 	public void disconnect() {
+		Util.log(Util.FLAG_LOG_BT_CALLS, "Disconnect (2.0)");
 		cancelThreads();          
 	}
 
@@ -60,9 +55,6 @@ public class BT20Connection extends BTConnection {
 	
 	
 	
-	
-	
-	//################################
 	
     private synchronized void cancelThreads() {
         if (mConnectThread != null) {
@@ -94,17 +86,16 @@ public class BT20Connection extends BTConnection {
             	}
                 
             } catch (IOException e) {
-                Util.log("Socket create() failed");
+            	Util.log(Util.FLAG_LOG_BT_EXCEPTION, "Socket create() failed");		
             } catch (Exception e) {
-            	Util.log("Socket create() REFLECTION failed");
+            	Util.log(Util.FLAG_LOG_BT_EXCEPTION, "Socket create() REFLECTION failed");		
 				e.printStackTrace();
 			} 
             mmSocket = tmp;
         }
 
         public void run() {
-        	Util.log("BEGIN mConnectThread");
-            
+        	Util.log(Util.FLAG_LOG_BT_CALLS, "BEGIN mConnectThread");	            
             mAdapter.cancelDiscovery(); //else it will slow down connection
 
             try {
@@ -113,7 +104,7 @@ public class BT20Connection extends BTConnection {
                 try {
                     mmSocket.close();
                 } catch (IOException e2) {
-                	Util.log("unable to close() socket during connection failure");
+                	Util.log(Util.FLAG_LOG_BT_EXCEPTION, "unable to close() socket during connection failure");		
                 }
                 mBTservice.connectionFailed(true, 0);
                 return;
@@ -132,7 +123,7 @@ public class BT20Connection extends BTConnection {
             try {
                 mmSocket.close();
             } catch (IOException e) {
-            	Util.log("close() of connect socket failed");
+            	Util.log(Util.FLAG_LOG_BT_EXCEPTION, "close() of connect socket failed");	
             }
         }
     }
@@ -146,7 +137,7 @@ public class BT20Connection extends BTConnection {
         private final OutputStream mmOutStream;
 
         public ConnectedThread(BluetoothSocket socket) {
-        	Util.log("create ConnectedThread");
+        	Util.log(Util.FLAG_LOG_BT_CALLS, "create ConnectedThread");	  
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
@@ -155,7 +146,7 @@ public class BT20Connection extends BTConnection {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
             } catch (IOException e) {
-            	Util.log("temp sockets not created");
+            	Util.log(Util.FLAG_LOG_BT_EXCEPTION, "failed to create tmp sockets");	            	
             }
            
             mmInStream = tmpIn;
@@ -164,7 +155,7 @@ public class BT20Connection extends BTConnection {
         
 
         public void run() {
-        	Util.log("BEGIN mConnectedThread");
+        	Util.log(Util.FLAG_LOG_BT_CALLS, "BEGIN mConnectedThread");	
         	int rxTmp;
             while (true) {
                 try {
@@ -182,7 +173,7 @@ public class BT20Connection extends BTConnection {
                 mmOutStream.write(buffer);
                 mmOutStream.flush();
             } catch (IOException e) {
-            	Util.log("write() exception");
+            	Util.log(Util.FLAG_LOG_BT_EXCEPTION, "write() exception");	  
             }
         }          
 
@@ -190,7 +181,7 @@ public class BT20Connection extends BTConnection {
             try {
                 mmSocket.close();
             } catch (IOException e) {
-            	Util.log("socket close() exception");
+            	Util.log(Util.FLAG_LOG_BT_EXCEPTION, "socket close() exception");	   
             }
         }
     }   

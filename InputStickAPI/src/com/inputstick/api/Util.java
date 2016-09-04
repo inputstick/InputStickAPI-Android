@@ -1,29 +1,155 @@
 package com.inputstick.api;
 
-import android.annotation.SuppressLint;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import android.annotation.SuppressLint;
+import android.util.Log;
+
 
 public abstract class Util {
+	
+	public static final int LOG_MAX_CAPACITY = 					500;
+	
+	public static final int FLAG_LOG_API =				 		0x00000001;
+	
+	public static final int FLAG_LOG_BT_CALLS = 				0x00000100;
+	public static final int FLAG_LOG_BT_ADAPTER = 				0x00000200;
+	public static final int FLAG_LOG_BT_PACKET = 				0x00000400;
+	public static final int FLAG_LOG_BT_EXCEPTION = 			0x00000800;
+	public static final int FLAG_LOG_BT_SERVICE =	 			0x00001000;	
+	
+	public static final int FLAG_LOG_UTILITY_CALLS = 			0x00010000;	
+	public static final int FLAG_LOG_UTILITY_SERVICE = 			0x00020000;
+	public static final int FLAG_LOG_UTILITY_UI = 				0x00040000;	
+	public static final int FLAG_LOG_UTILITY_PACKET = 			0x00080000;	
+	public static final int FLAG_LOG_UTILITY_EXCEPTION = 		0x00100000;
+	
+	public static final int FLAG_NONE = 						0x00000000;
+	public static final int FLAG_ALL = 							0xFFFFFFFF;
+	
+	
+	private static boolean logCatEnabled;
+	private static int eventLogFlags;
+	
+	private static String[] logMessages;
+	private static int[] logFlags;
+	private static long[] logTimeStamps;
+	private static int cnt;
+	private static int totalCnt;
+	
 	
 	public static boolean debug = false;
 	public static boolean flashingToolMode = false;
 	
-	public static void log(String msg) {
-		log(msg, false);
-	}
 	
-	public static void log(String msg, boolean displayTime) {
-		if (debug) {
-			System.out.print("LOG: " + msg);
-			if (displayTime) {
-				System.out.print(" @ " + System.currentTimeMillis());
-			}
-			System.out.println();
+	private static void initLog() {
+		if ((logMessages == null) || (logFlags == null) || (logTimeStamps == null)) {
+			logMessages = new String[LOG_MAX_CAPACITY];			
+			logFlags = new int[LOG_MAX_CAPACITY];			
+			logTimeStamps = new long[LOG_MAX_CAPACITY];		
+			cnt = 0;
+			totalCnt = 0;
 		}
 	}
+	
+	public static void clearLog() {
+		logMessages = null;
+		logFlags = null;
+		logTimeStamps = null;
+		initLog();
+	}
+	
+	public static void setLogOptions(int logFlags, boolean logCat) {
+		eventLogFlags = logFlags;
+		logCatEnabled = logCat;
+	}
+	
+	public static void log(int flag, String message) {
+		if ((eventLogFlags & flag) != 0) {		
+			initLog();
+			logMessages[cnt] = message;
+			logFlags[cnt] = flag;
+			logTimeStamps[cnt] = System.currentTimeMillis();
+			cnt++;
+			totalCnt++;
+			if (cnt == LOG_MAX_CAPACITY) {
+				cnt = 0;
+			}
+			
+			if (logCatEnabled) {		
+				String msg;
+				msg = "[" + getNameOfFlag(flag) + "] " + message;
+				Log.d("InputStickUtility", msg);
+			}
+		}
+	}
+	
+	public static String getLog(int printFlags) {
+		String result = "";		
+		initLog();
+		if (totalCnt == 0) {
+			return null;
+		} else {
+			int logged = cnt;
+			if (cnt > LOG_MAX_CAPACITY) {
+				logged = LOG_MAX_CAPACITY;
+			}
+			result += "[" + System.currentTimeMillis() + "] [LOG] Logged messages: " + logged + " (total: " + totalCnt + ")\n";
+			for (int i = cnt; i < LOG_MAX_CAPACITY; i++) {
+				if (logMessages[i] != null) {
+					result += "[" + logTimeStamps[i] + "] ";
+					result += "[" + getNameOfFlag(logFlags[i]) + "] ";								
+					result += logMessages[i] + "\n";
+				}
+			}
+			for (int i = 0; i < cnt; i++) {
+				if (logMessages[i] != null) {
+					result += "[" + logTimeStamps[i] + "] ";
+					result += "[" + getNameOfFlag(logFlags[i]) + "] ";								
+					result += logMessages[i] + "\n";
+				}
+			}
+			return result;
+		}		
+	}		
+	
+	private static String getNameOfFlag(int flag) {
+		switch (flag) {
+			case FLAG_LOG_BT_PACKET:
+				return "BT PACKET";
+			case FLAG_LOG_UTILITY_PACKET:
+				return "UTILITY PACKET";	
+				
+			case FLAG_LOG_BT_CALLS:
+				return "BT CALL";
+			case FLAG_LOG_BT_ADAPTER:
+				return "BT ADAPTER";
+
+			case FLAG_LOG_BT_EXCEPTION:
+				return "BT EXCEPTION";
+			case FLAG_LOG_BT_SERVICE:
+				return "BT SERVICE";
+				
+				
+			case FLAG_LOG_UTILITY_CALLS:
+				return "UTILITY CALLS";
+			case FLAG_LOG_UTILITY_SERVICE:
+				return "UTILITY SERVICE";				
+			case FLAG_LOG_UTILITY_UI:
+				return "UTILITY UI";							
+			case FLAG_LOG_UTILITY_EXCEPTION:
+				return "UTILITY EXCEPTION";
+				
+			case FLAG_LOG_API:
+				return "API";				
+				
+			default:
+				return "UNKNOWN";
+		}
+	}	
+
 	
 	public static void printHex(byte[] toPrint, String info) {
 		if (debug) {
