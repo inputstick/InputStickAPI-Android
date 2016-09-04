@@ -30,7 +30,9 @@ public class Packet {
 	public static final byte CMD_GET_VALUE =				0x17;	
 	public static final byte CMD_SET_PIN =	 				0x18;
 	public static final byte CMD_USB_RESUME =	 			0x19;
-	public static final byte CMD_USB_POWER =	 			0x1A;	
+	public static final byte CMD_USB_POWER =	 			0x1A;
+	//sec ... //
+	public static final byte CMD_SET_NAME =	 				0x1C;	
 	
 	public static final byte CMD_SYSTEM_NOTIFICATION =		0x1F;	
 	
