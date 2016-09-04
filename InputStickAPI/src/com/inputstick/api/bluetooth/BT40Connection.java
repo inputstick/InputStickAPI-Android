@@ -28,15 +28,12 @@ public class BT40Connection extends BTConnection {
 	private static final int CONNECTION_TIMEOUT = 10000;
     
 	private static final String MOD_CHARACTERISTIC_CONFIG = 	"00002902-0000-1000-8000-00805f9b34fb";
-	private static final String MOD_CONF = 					"0000ffe0-0000-1000-8000-00805f9b34fb";
+	private static final String MOD_CONF = 						"0000ffe0-0000-1000-8000-00805f9b34fb";
 	private static final String MOD_RX_TX = 					"0000ffe1-0000-1000-8000-00805f9b34fb";															  	
-	private static final UUID UUID_HM_RX_TX = UUID.fromString(MOD_RX_TX);	   
+	private static final UUID 	UUID_HM_RX_TX = 				UUID.fromString(MOD_RX_TX);	   
     
-    private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothGatt mBluetoothGatt;
-    private BluetoothGattCharacteristic characteristicTX;
-    private BluetoothGattCharacteristic characteristicRX;
 
     private LinkedList<byte[]> txBuffer;
     private boolean canSend;
@@ -46,13 +43,13 @@ public class BT40Connection extends BTConnection {
 	
     public BT40Connection(Application app, BTService btService, String mac, boolean reflections) {
     	super(app, btService, mac, reflections);    	     	
-		mBluetoothManager = (BluetoothManager) (mCtx.getSystemService(Context.BLUETOOTH_SERVICE));
-		mBluetoothAdapter = mBluetoothManager.getAdapter();
-    	
+    	BluetoothManager bluetoothManager = (BluetoothManager) (mCtx.getSystemService(Context.BLUETOOTH_SERVICE));
+		mBluetoothAdapter = bluetoothManager.getAdapter();    	
     }
     
 	@Override
-	public void connect() {		
+	public void connect() {
+		Util.log(Util.FLAG_LOG_BT_CALLS, "Connect (4.0)");		
 		final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mMac);
 		if (device != null) {			
 			mBluetoothGatt = device.connectGatt(mCtx, false, mGattCallback);
@@ -75,6 +72,7 @@ public class BT40Connection extends BTConnection {
 
 	@Override
 	public void disconnect() {
+		Util.log(Util.FLAG_LOG_BT_CALLS, "Disconnect (4.0)");
 		txBuffer = null;
 		try {
 			if (mBluetoothGatt != null) {
@@ -83,7 +81,7 @@ public class BT40Connection extends BTConnection {
 				mBluetoothGatt = null;
 			}
 		} catch (Exception e) {
-
+		
 		}
 	}
 	
@@ -123,7 +121,6 @@ public class BT40Connection extends BTConnection {
     	if (out.length == 2) {
     		addHeader(out);
     	} else {    		
-    		Util.log("ADDING: " + out.length);
     		int loops = out.length / 16;
     		offset = 0;
     		for (int i = 0; i < loops; i++) {
@@ -183,11 +180,18 @@ public class BT40Connection extends BTConnection {
 			byte[] data = getData();
 			if (data != null) {
 				canSend = false;
-				characteristicTX.setValue(data);
-				characteristicTX.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE); //TODO
-				//characteristicTX.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT); //TODO				
-				mBluetoothGatt.writeCharacteristic(characteristicTX);				
-			}			
+				boolean r1,r2;
+				
+				BluetoothGattService gattService = mBluetoothGatt.getService(UUID.fromString(MOD_CONF));
+				BluetoothGattCharacteristic gattCharacteristic = gattService.getCharacteristic(UUID_HM_RX_TX);
+				r1 = gattCharacteristic.setValue(data);
+				gattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);		
+				r2 = mBluetoothGatt.writeCharacteristic(gattCharacteristic);
+				
+				Util.log(Util.FLAG_LOG_BT_PACKET, "sendNext: " + r1 + " / " + r2);
+			} else {
+				Util.log(Util.FLAG_LOG_BT_PACKET, "sendNext: no data to send");
+			}
 		}
 	}
 	
@@ -197,39 +201,38 @@ public class BT40Connection extends BTConnection {
 		
 		@Override
 		public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-			if (newState == BluetoothProfile.STATE_CONNECTED) {
+			Util.log(Util.FLAG_LOG_BT_ADAPTER, "onConnectionStateChange" + newState);
+			if (newState == BluetoothProfile.STATE_CONNECTED) {				
 				isConnecting = false;
-				Util.log("Connected to GATT server.");
 				if (mBluetoothGatt != null) {
-					Util.log("Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
+					boolean result = mBluetoothGatt.discoverServices();
+					Util.log(Util.FLAG_LOG_BT_ADAPTER, "Attempting to start service discovery: " + result);
 				}
-			} else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+			} else if (newState == BluetoothProfile.STATE_DISCONNECTED) {				
 				isConnecting = false;
-				Util.log("Disconnected from GATT server.");
 				mBTservice.connectionFailed(false, InputStickError.ERROR_BLUETOOTH_CONNECTION_LOST);
-			}			
+			}
 		}
 
 		@Override
-		public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-			if (status == BluetoothGatt.GATT_SUCCESS) {
-				Util.log("GATT onServicesDiscovered");
+		public void onServicesDiscovered(BluetoothGatt gatt, int status) {								
+			if (status == BluetoothGatt.GATT_SUCCESS) {		
+				Util.log(Util.FLAG_LOG_BT_ADAPTER, "onServicesDiscovered: OK");
 				List<BluetoothGattService> gattServices = null;		
 				boolean serviceDiscovered = false;
 		        if (mBluetoothGatt != null) {
 		        	gattServices = mBluetoothGatt.getServices();
 		        }
+		        BluetoothGattCharacteristic characteristicRxTx = null;
 		        if (gattServices != null) {
 			        String uuid = null;
-			        characteristicRX = null;
+			        
 			        for (BluetoothGattService gattService : gattServices) {
 			            uuid = gattService.getUuid().toString();
-			            if (MOD_CONF.equals(uuid)) {
-			            	Util.log("BT LE - Serial Service Discovered");
-			            	
-				    		 characteristicTX = gattService.getCharacteristic(UUID_HM_RX_TX);
-				    		 characteristicRX = gattService.getCharacteristic(UUID_HM_RX_TX);
-				    		 if (characteristicRX == null) {
+			            Util.log(Util.FLAG_LOG_BT_ADAPTER, "uuid: " + uuid);
+			            if (MOD_CONF.equals(uuid)) {			            	
+			            	characteristicRxTx = gattService.getCharacteristic(UUID_HM_RX_TX);
+				    		 if (characteristicRxTx == null) {
 				    			 mBTservice.connectionFailed(false, InputStickError.ERROR_BLUETOOTH_BT40_NO_SPP_SERVICE);
 				    		 } else {
 				    			 serviceDiscovered = true;
@@ -238,33 +241,47 @@ public class BT40Connection extends BTConnection {
 			        }				
 		        }
 		        if (serviceDiscovered) {
-		        	//enable notifications
-		            mBluetoothGatt.setCharacteristicNotification(characteristicRX, true);
-		            if (UUID_HM_RX_TX.equals(characteristicRX.getUuid())) {
-		            	Util.log("RXTX SERVICE DISCOVERED!");
-		                BluetoothGattDescriptor descriptor = characteristicRX.getDescriptor(UUID.fromString(MOD_CHARACTERISTIC_CONFIG));
-		                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);		                
-		                mBluetoothGatt.writeDescriptor(descriptor);	
-		                
-			            txBuffer = new LinkedList<byte[]>();		     			            
-		                canSend = true;
-		                sendNext();
+		            if (UUID_HM_RX_TX.equals(characteristicRxTx.getUuid())) {
+		            	Util.log(Util.FLAG_LOG_BT_ADAPTER, "Serial service discovered");
+			        	//enable notifications
+		            	boolean result;		            	
+			            result = mBluetoothGatt.setCharacteristicNotification(characteristicRxTx, true);	
+			            Util.log(Util.FLAG_LOG_BT_ADAPTER, "setCharacteristicNotification: " + result);
 			            
-			            mBTservice.connectionEstablished();
+		                BluetoothGattDescriptor descriptor = characteristicRxTx.getDescriptor(UUID.fromString(MOD_CHARACTERISTIC_CONFIG));		                
+		                
+		                result = descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);	
+						Util.log(Util.FLAG_LOG_BT_ADAPTER, "setValue: " + result);
+		                result = mBluetoothGatt.writeDescriptor(descriptor);	
+		                Util.log(Util.FLAG_LOG_BT_ADAPTER, "writeDescriptor: " + result);
+		                Util.log(Util.FLAG_LOG_BT_ADAPTER, "Descriptor UUID: " + descriptor.getUuid());
 		            } else {
+		            	Util.log(Util.FLAG_LOG_BT_EXCEPTION, "Characteristic NOT found");
 		            	mBTservice.connectionFailed(false, InputStickError.ERROR_BLUETOOTH_BT40_NO_SPP_SERVICE);
 		            }
 		        } else {
-		        	Util.log("BT LE - Serial Service NOT FOUND");
+		        	Util.log(Util.FLAG_LOG_BT_EXCEPTION, "Serial service NOT found");		        	
 		        	mBTservice.connectionFailed(false, InputStickError.ERROR_BLUETOOTH_BT40_NO_SPP_SERVICE);
 		        }
 			} else {
-				Util.log("onServicesDiscovered received: " + status);
+				Util.log(Util.FLAG_LOG_BT_EXCEPTION, "onServicesDiscovered: " + status);
 			}
+		}
+		
+		@Override
+		public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status)  {
+			Util.log(Util.FLAG_LOG_BT_ADAPTER, "onDescriptorWrite: " + status);
+			
+            txBuffer = new LinkedList<byte[]>();		     			            
+            canSend = true;
+            sendNext();
+            
+            mBTservice.connectionEstablished();
 		}
 
 		@Override
 		public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+			Util.log(Util.FLAG_LOG_BT_ADAPTER, "onCharacteristicRead: " + status);
 			if (status == BluetoothGatt.GATT_SUCCESS) {
 			} 
 		}
@@ -273,17 +290,22 @@ public class BT40Connection extends BTConnection {
 		public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
 			byte b[] = characteristic.getValue();
 			if (b != null) {
+				Util.log(Util.FLAG_LOG_BT_PACKET, "onCharacteristicChanged (" + b.length + ")");
 				mBTservice.onByteRx(b);
-			}	
+			} else {
+				Util.log(Util.FLAG_LOG_BT_EXCEPTION, "onCharacteristicChanged (null)");
+			}
 		}
 
 		@Override
-		public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-			Util.log("GATT onCharacteristicWrite");			
+		public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {			
 			if (status == BluetoothGatt.GATT_SUCCESS) {
+				Util.log(Util.FLAG_LOG_BT_PACKET, "onCharacteristicWrite: OK");
 				canSend = true;
 				sendNext();
-			}	//TODO error code?					
+			} else {
+				Util.log(Util.FLAG_LOG_BT_EXCEPTION, "onCharacteristicWrite: " + status);
+			}
 		}
 		
 	};	
