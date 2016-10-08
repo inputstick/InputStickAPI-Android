@@ -21,6 +21,8 @@ public class InputStickConsumer {
 	//Android OS (consumer):
 	public static final int HOME = 0x0223;
 	public static final int BACK = 0x0224;
+	public static final int FORWARD = 0x0225;
+	public static final int REFRESH = 0x0227;
 	public static final int SEARCH = 0x0221;
 	
 	
