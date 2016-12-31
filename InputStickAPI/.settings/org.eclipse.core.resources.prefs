@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+encoding//src/com/inputstick/api/layout/BelgianLayout.java=UTF-8
 encoding//src/com/inputstick/api/layout/CanadianFrenchLayout.java=UTF-8
 encoding//src/com/inputstick/api/layout/DanishLayout.java=UTF-8
 encoding//src/com/inputstick/api/layout/DutchLayout.java=UTF-8
@@ -7,6 +8,7 @@ encoding//src/com/inputstick/api/layout/FrenchLayout.java=UTF-8
 encoding//src/com/inputstick/api/layout/FrenchLinuxLayout.java=UTF-8
 encoding//src/com/inputstick/api/layout/GermanLayout.java=UTF-8
 encoding//src/com/inputstick/api/layout/GermanMacLayout.java=UTF-8
+encoding//src/com/inputstick/api/layout/GreekLayout.java=UTF-8
 encoding//src/com/inputstick/api/layout/HebrewLayout.java=UTF-8
 encoding//src/com/inputstick/api/layout/ItalianLayout.java=UTF-8
 encoding//src/com/inputstick/api/layout/NorwegianLayout.java=UTF-8
