@@ -432,7 +432,11 @@ public abstract class KeyboardLayout {
 				return FrenchLinuxLayout.getInstance();
 			} else if (locale.equalsIgnoreCase(PolishLinuxLayout.LOCALE_NAME)) {
 				return PolishLinuxLayout.getInstance();
-			} 																							 																		
+			} else if (locale.equalsIgnoreCase(GreekLayout.LOCALE_NAME)) {
+				return GreekLayout.getInstance();
+			} else if (locale.equalsIgnoreCase(BelgianLayout.LOCALE_NAME)) {
+				return BelgianLayout.getInstance();
+			}			
 		}
 
 		return UnitedStatesLayout.getInstance();
