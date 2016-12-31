@@ -1,5 +1,6 @@
 package com.inputstick.api.basic;
 
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -18,6 +19,7 @@ import com.inputstick.api.InputStickError;
 import com.inputstick.api.InputStickStateListener;
 import com.inputstick.api.OnEmptyBufferListener;
 import com.inputstick.api.Packet;
+import com.inputstick.api.Util;
 import com.inputstick.api.hid.HIDReport;
 import com.inputstick.api.hid.HIDTransaction;
 import com.inputstick.api.hid.HIDTransactionQueue;
@@ -30,6 +32,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	public static final int INTERFACE_KEYBOARD = 0;
 	public static final int INTERFACE_CONSUMER = 1;
 	public static final int INTERFACE_MOUSE = 2;
+	public static final int INTERFACE_RAW_HID = 3;
 	
 	private static ConnectionManager mConnectionManager;
 	
@@ -43,6 +46,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	private static HIDTransactionQueue keyboardQueue;
 	private static HIDTransactionQueue mouseQueue;
 	private static HIDTransactionQueue consumerQueue;
+	private static HIDTransactionQueue rawHIDQueue;
 	
 		
 	//FW 0.93 - 0.95
@@ -62,7 +66,8 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 		mHIDInfo = new HIDInfo();
 		keyboardQueue = new HIDTransactionQueue(INTERFACE_KEYBOARD, mConnectionManager);
 		mouseQueue = new HIDTransactionQueue(INTERFACE_MOUSE, mConnectionManager);
-		consumerQueue = new HIDTransactionQueue(INTERFACE_CONSUMER, mConnectionManager);		
+		consumerQueue = new HIDTransactionQueue(INTERFACE_CONSUMER, mConnectionManager);
+		rawHIDQueue = new HIDTransactionQueue(INTERFACE_RAW_HID, mConnectionManager);
 		
 		mConnectionManager.addStateListener(instance);
 		mConnectionManager.addDataListener(instance);
@@ -405,6 +410,19 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 			consumerQueue.addTransaction(transaction);
 		}
 	}
+	
+	
+	/*
+	 * Adds transaction to raw HID queue. 
+	 * If possible, all reports form a single transactions will be sent in a single packet.
+	 * 
+	 * @param transaction	transaction to be queued	 
+	 */
+	public static void addRawHIDTransaction(HIDTransaction transaction) {
+		if ((transaction != null) && (rawHIDQueue != null)) {
+			rawHIDQueue.addTransaction(transaction);
+		}
+	}
 
 
 	/*
@@ -433,6 +451,16 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	public static void clearConsumerBuffer() {
 		if (consumerQueue != null) {
 			consumerQueue.clearBuffer();
+		}
+	}
+	
+	
+	/*
+	 * Removes all reports from consumer control buffer.	 
+	 */
+	public static void clearRawHIDBuffer() {
+		if (rawHIDQueue != null) {
+			rawHIDQueue.clearBuffer();
 		}
 	}
 	
@@ -495,6 +523,20 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	
 	
 	/*
+	 * Checks if local (Android device) raw HID report buffer is empty. It is possible that there are reports queued in InputStick's buffer.
+	 *
+	 * @return true if local raw HID buffer is empty, false otherwise
+	 */
+	public static boolean isRawHIDLocalBufferEmpty() {
+		if (rawHIDQueue != null) {
+			return rawHIDQueue.isLocalBufferEmpty();
+		} else {
+			return true;
+		}
+	}
+	
+	
+	/*
 	 * Checks if local (Android device) AND remote (InputStick) keyboard report buffers are empty.
 	 *
 	 * @return true if local and remote keyboard buffers are empty, false otherwise
@@ -536,6 +578,18 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	}
 
 	
+	/*
+	 * Checks if local (Android device) AND remote (InputStick) raw HID report buffers are empty.
+	 *
+	 * @return true if local and remote raw HID buffers are empty, false otherwise
+	 */
+	public static boolean isRawHIDRemoteBufferEmpty() {
+		if (rawHIDQueue != null) {
+			return rawHIDQueue.isRemoteBufferEmpty();
+		} else {
+			return true;
+		}
+	}
 	
 	
 	
@@ -556,6 +610,16 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 		byte cmd = data[0];
 		if (cmd == Packet.CMD_FW_INFO) {
 			mDeviceInfo = new DeviceInfo(data);		
+			Util.debug = true;
+			Util.printHex(null, "hello info"); //TODO !!!!!!!!!!!!!
+		}
+		
+		if (cmd == Packet.CMD_HID_DATA_RAW) {
+			//byte b;
+			Util.printHex(data, "RAW DATA: ");
+			if (data.length > 65) {
+				InputStickRawHID.notifyRawHIDListeners( Arrays.copyOfRange(data, 1, 65));
+			}
 		}
 		
 		if (cmd == Packet.CMD_HID_STATUS) {
@@ -566,6 +630,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 				keyboardQueue.deviceReady(mHIDInfo, mHIDInfo.getKeyboardReportsSentToHost());
 				mouseQueue.deviceReady(mHIDInfo, mHIDInfo.getMouseReportsSentToHost());
 				consumerQueue.deviceReady(mHIDInfo, mHIDInfo.getConsumerReportsSentToHost());
+				rawHIDQueue.deviceReady(mHIDInfo, mHIDInfo.getRawHIDReportsSentToHost());
 				
 				if (mDeviceInfo != null) {
 					if ((updateQueueTimer == null) && (mDeviceInfo.getFirmwareVersion() < 97)) {
@@ -576,6 +641,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 								keyboardQueue.sendToBuffer(false);
 								mouseQueue.sendToBuffer(false);
 								consumerQueue.sendToBuffer(false);
+								rawHIDQueue.sendToBuffer(false);
 							}
 						}, 5, 5);						
 					}
@@ -590,7 +656,8 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 				}
 				if (mHIDInfo.isConsumerReady()) {
 					consumerQueue.deviceReady(null, 0);
-				}			
+				}
+				//raw HID was not supported
 			}
 			
 			InputStickKeyboard.setLEDs(mHIDInfo.getNumLock(), mHIDInfo.getCapsLock(), mHIDInfo.getScrollLock());			
