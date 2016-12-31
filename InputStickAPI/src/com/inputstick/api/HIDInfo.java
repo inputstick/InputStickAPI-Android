@@ -14,12 +14,15 @@ public class HIDInfo {
 	private boolean keyboardReady;
 	private boolean mouseReady;
 	private boolean consumerReady;
+	private boolean rawHIDReady;
 	
 	// >= 0.93
 	private boolean sentToHostInfo;
 	private int keyboardReportsSentToHost;
 	private int mouseReportsSentToHost;
 	private int consumerReportsSentToHost;
+	private int rawHIDReportsSentToHost;
+	
 
 	public HIDInfo() {
 		keyboardReportProtocol = true;
@@ -84,6 +87,19 @@ public class HIDInfo {
 				consumerReportsSentToHost = data[10] & 0xFF;
 			}			
 		}
+		
+		if (data.length >= 14) {	
+			if (data[12] == 0) {
+				rawHIDReady = false;
+			} else {
+				rawHIDReady = true;
+			}	
+			rawHIDReportsSentToHost = data[13] & 0xFF;			
+		} else {
+			//if no info was provided, assume that the raw HID interface is ready (buffer is empty)
+			rawHIDReady = true;
+		}
+		
 	}
 	
 	public void setKeyboardBusy() {
@@ -126,6 +142,10 @@ public class HIDInfo {
 		return consumerReady;
 	}	
 	
+	public boolean isRawHIDReady() {
+		return rawHIDReady;
+	}	
+	
 	
 	
 	// > v0.93 firmware only
@@ -145,5 +165,11 @@ public class HIDInfo {
 	public int getConsumerReportsSentToHost() {
 		return consumerReportsSentToHost;
 	}
+	
+	public int getRawHIDReportsSentToHost() {
+		return rawHIDReportsSentToHost;
+	}
+	
+	
 	
 }
