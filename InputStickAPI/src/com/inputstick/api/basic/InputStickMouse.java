@@ -50,7 +50,7 @@ public class InputStickMouse {
 	 * Move mouse pointer
 	 * 
 	 * @param x		x displacement
-	 * @param y		y dispalcement
+	 * @param y		y displacement
 	 */
 	public static void move(byte x, byte y) {
 		HIDTransaction t = new HIDTransaction();
