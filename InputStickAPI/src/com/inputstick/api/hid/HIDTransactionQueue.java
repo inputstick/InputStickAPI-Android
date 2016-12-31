@@ -13,7 +13,7 @@ import com.inputstick.api.basic.InputStickHID;
 
 public class HIDTransactionQueue {
 	
-	private static final int BUFFER_SIZE = 32;
+	private static final int DEFAULT_BUFFER_SIZE = 32;
 	private static final int BT_DELAY = 50; //additional delay for BT overhead
 	
 	private static final int MAX_PACKETS_PER_UPDATE = 10;
@@ -22,6 +22,7 @@ public class HIDTransactionQueue {
 	private final LinkedList<HIDTransaction> queue;
 	private final ConnectionManager mConnectionManager;
 	private final byte cmd;
+	private final int bufferSize;
 	private boolean ready;
 	
 	private int mInterfaceType;
@@ -44,9 +45,10 @@ public class HIDTransactionQueue {
 	
 	private int interfaceReadyCnt; //fix BT4.0 lost packet problem
 	
-	public HIDTransactionQueue(int interfaceType, ConnectionManager connectionManager) {
+	public HIDTransactionQueue(int interfaceType, ConnectionManager connectionManager, int bufferSize) {
+		this.bufferSize = bufferSize;
 		constantUpdateMode = false;
-		bufferFreeSpace = BUFFER_SIZE;
+		bufferFreeSpace = bufferSize;
 		interfaceReadyCnt = 0;
 		
 		queue = new LinkedList<HIDTransaction>();
@@ -70,25 +72,34 @@ public class HIDTransactionQueue {
 			case InputStickHID.INTERFACE_CONSUMER:
 				cmd = Packet.CMD_HID_DATA_CONSUMER;
 				break;
+			case InputStickHID.INTERFACE_RAW_HID:
+				cmd = Packet.CMD_HID_DATA_RAW;
+				break;				
 			default:
 				cmd = Packet.CMD_DUMMY;
 		}
 	}
 	
+	public HIDTransactionQueue(int interfaceType, ConnectionManager connectionManager) {
+		this(interfaceType, connectionManager, DEFAULT_BUFFER_SIZE);
+	}
+	
 	private int sendNext(int maxReports) {
 		HIDTransaction transaction;		
+		byte firstTransactionCmd;
+		byte transactionCmd;
 		
 		//assume there is at least 1 element in queue		
 		transaction = queue.peek();
 		if (transaction.getReportsCount() > maxReports) {
 			// v0.92
-			if (maxReports < BUFFER_SIZE) {
-				//don't split transactions until there is no other way  left!
+			//we can late a little longer for the buffer to free up some space, do not split the transaction yet
+			if (maxReports < bufferSize) {
 				return 0;
 			}
 			
 			//transaction too big to fit single packet! split
-			transaction = transaction.split(BUFFER_SIZE);
+			transaction = transaction.split(bufferSize);
 		} else {
 			queue.removeFirst();						
 		}
@@ -96,14 +107,10 @@ public class HIDTransactionQueue {
 		byte reports = 0;
 		ready = false;		
 		Packet p = new Packet(false, cmd, reports);
+		firstTransactionCmd = transaction.getTransactionTypeCmd();
 				
 		while (transaction.hasNext()) {
 			p.addBytes(transaction.getNextReport());
-			//TODO mod
-			//byte[] r = transaction.getNextReport();
-			//p.addByte(r[0]);
-			//p.addByte(r[2]);
-			
 			reports++;
 		}		
 		
@@ -113,15 +120,16 @@ public class HIDTransactionQueue {
 			}
 			
 			transaction = queue.peek();
+			transactionCmd = transaction.getTransactionTypeCmd();
+			//do not allow to send multiple transaction types (
+			if (transactionCmd != firstTransactionCmd) {
+				break;
+			}
+			
 			if (reports + transaction.getReportsCount() < maxReports) {
 				queue.removeFirst();	
 				while (transaction.hasNext()) {
-					p.addBytes(transaction.getNextReport());
-					//TODO mod
-					//byte[] r = transaction.getNextReport();
-					//p.addByte(r[0]);
-					//p.addByte(r[2]);
-					
+					p.addBytes(transaction.getNextReport());			
 					reports++;
 				}				
 			} else {
@@ -131,6 +139,12 @@ public class HIDTransactionQueue {
 		
 		//!! total number of reports must be < 32 ! (max packet limitation)
 		p.modifyByte(1, reports); //set reports count
+		
+		//solves touchscreen/gamepad buffering problem:
+		//if transaction is not using interface-default command, change the command (used for consumer control interface: handling consumer/gamepad/touchscreen reports)
+		if (firstTransactionCmd != HIDTransaction.TRANSACTION_CMD_DEFAULT) {
+			p.modifyByte(0, firstTransactionCmd);
+		}
 		mConnectionManager.sendPacket(p);			
 		
 		interfaceReadyCnt = 0;
@@ -164,7 +178,7 @@ public class HIDTransactionQueue {
 	}
 	
 	public synchronized boolean isRemoteBufferEmpty() {
-		if ((queue.isEmpty()) && (bufferFreeSpace == BUFFER_SIZE)) {
+		if ((queue.isEmpty()) && (bufferFreeSpace == bufferSize)) {
 			return true;
 		}
 		
@@ -202,7 +216,7 @@ public class HIDTransactionQueue {
 		
 		queue.add(transaction);						
 		if (ready) {
-			sendNext(BUFFER_SIZE);
+			sendNext(bufferSize);
 		} 		
 	}	
 
@@ -226,7 +240,7 @@ public class HIDTransactionQueue {
 			if (hidInfo.isSentToHostInfoAvailable()) {
 				
 				//BT4.0 lost packets fix:
-				if (bufferFreeSpace < BUFFER_SIZE) {
+				if (bufferFreeSpace < bufferSize) {
 					boolean interfaceReady = false;
 					if (mInterfaceType == InputStickHID.INTERFACE_KEYBOARD) {
 						interfaceReady = hidInfo.isKeyboardReady();
@@ -237,10 +251,13 @@ public class HIDTransactionQueue {
 					if (mInterfaceType == InputStickHID.INTERFACE_CONSUMER) {
 						interfaceReady = hidInfo.isConsumerReady();
 					}
+					if (mInterfaceType == InputStickHID.INTERFACE_RAW_HID) {
+						interfaceReady = hidInfo.isRawHIDReady();
+					}
 					if (interfaceReady) {
 						interfaceReadyCnt++;
 						if (interfaceReadyCnt == 10) {
-							bufferFreeSpace = BUFFER_SIZE;
+							bufferFreeSpace = bufferSize;
 						}
 					} else {
 						interfaceReadyCnt = 0;
@@ -251,7 +268,7 @@ public class HIDTransactionQueue {
 				constantUpdateMode = true;
 				// >= FW 0.93
 				bufferFreeSpace += reportsSentToHost;
-				if ((bufferFreeSpace == BUFFER_SIZE) && (queue.isEmpty())) {
+				if ((bufferFreeSpace == bufferSize) && (queue.isEmpty())) {
 					notifyOnRemoteBufferEmpty();
 				}
 				immediatePacketsLeft = MAX_IMMEDIATE_PACKETS;
@@ -280,7 +297,7 @@ public class HIDTransactionQueue {
 			timerCancelled = true;
 			sentAhead = false;
 			if (!queue.isEmpty()) {
-				sendNext(BUFFER_SIZE);
+				sendNext(bufferSize);
 			} else {			
 				ready = true;
 				//queue is empty, InputStick reported that buffer is empty, data was added since last notification

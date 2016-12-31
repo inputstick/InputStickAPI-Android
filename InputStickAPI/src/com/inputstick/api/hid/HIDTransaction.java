@@ -3,12 +3,20 @@ package com.inputstick.api.hid;
 import java.util.LinkedList;
 
 public class HIDTransaction {
+	
+	public static final byte TRANSACTION_CMD_DEFAULT = 0;
 
 	private int mID;
+	private byte mTransactionTypeCmd;
 	private LinkedList<HIDReport> reports;
 	
-	public HIDTransaction() {
+	public HIDTransaction(byte transactionTypeCmd) {
+		mTransactionTypeCmd = transactionTypeCmd;
 		reports = new LinkedList<HIDReport>();
+	}
+	
+	public HIDTransaction() {
+		this(TRANSACTION_CMD_DEFAULT);
 	}
 	
 	public void addReport(HIDReport report) {
@@ -25,6 +33,10 @@ public class HIDTransaction {
 	
 	public int getID() {
 		return mID;
+	}
+	
+	public byte getTransactionTypeCmd() {
+		return mTransactionTypeCmd;
 	}
 	
 	public boolean hasNext() {
