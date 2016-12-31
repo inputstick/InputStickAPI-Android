@@ -43,6 +43,11 @@ public class Packet {
 	public static final byte CMD_HID_DATA_CONSUMER =		0x22;
 	public static final byte CMD_HID_DATA_MOUSE = 			0x23;
 	public static final byte CMD_HID_DATA_GAMEPAD = 		0x24;
+	public static final byte CMD_HID_DATA_MIXED =	 		0x25;
+	public static final byte CMD_HID_DATA_TOUCHSCREEN = 	0x26;
+	public static final byte CMD_HID_DATA_RAW = 			0x27;
+	
+	
 	
 	public static final byte CMD_HID_DATA_ENDP = 			0x2B;
 	public static final byte CMD_HID_DATA_KEYB_FAST = 		0x2C;
