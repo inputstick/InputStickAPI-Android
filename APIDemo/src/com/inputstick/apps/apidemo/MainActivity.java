@@ -27,6 +27,8 @@ public class MainActivity extends Activity implements InputStickStateListener {
 	private Button buttonMouse;
 	private Button buttonMedia;
 	private Button buttonGamepad;
+	private Button buttonTouchScreen;
+	private Button buttonRawHID;	
 	private Button buttonWeb;
 	
 	private static final LightingColorFilter f = new LightingColorFilter(0xFFFFFFFF, 0xFFFFFFFF);
@@ -93,6 +95,18 @@ public class MainActivity extends Activity implements InputStickStateListener {
 		buttonGamepad.setOnClickListener(new OnClickListener() {
 			public void onClick(View arg0) {			
 				startActivity(new Intent(MainActivity.this, GamepadDemoActivity.class));
+			}
+		});
+		buttonTouchScreen = (Button)findViewById(R.id.buttonTouchScreen);
+		buttonTouchScreen.setOnClickListener(new OnClickListener() {
+			public void onClick(View arg0) {			
+				startActivity(new Intent(MainActivity.this, TouchScreenDemoActivity.class));
+			}
+		});
+		buttonRawHID = (Button)findViewById(R.id.buttonRawHID);
+		buttonRawHID.setOnClickListener(new OnClickListener() {
+			public void onClick(View arg0) {			
+				startActivity(new Intent(MainActivity.this, RawHIDDemoActivity.class));
 			}
 		});
 		buttonWeb = (Button)findViewById(R.id.buttonWeb);

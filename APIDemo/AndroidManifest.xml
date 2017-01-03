@@ -7,10 +7,10 @@
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="19" />
-    
+
     <!-- only if direct Bluetooth connection is used (instead of InputStickUtility -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />    
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
         android:allowBackup="true"
@@ -41,6 +41,14 @@
         <activity
             android:name=".GamepadDemoActivity"
             android:label="@string/title_activity_gamepad_demo" >
+        </activity>
+        <activity
+            android:name=".TouchScreenDemoActivity"
+            android:label="@string/title_activity_touch_screen_demo" >
+        </activity>
+        <activity
+            android:name=".RawHIDDemoActivity"
+            android:label="@string/title_activity_raw_hiddemo" >
         </activity>
     </application>
 
