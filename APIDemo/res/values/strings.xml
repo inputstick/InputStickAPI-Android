@@ -6,21 +6,32 @@
     <string name="title_activity_mouse_demo">Mouse Demo</string>
     <string name="title_activity_media_demo">Media Demo</string>
     <string name="title_activity_gamepad_demo">Gamepad Demo</string>
-    
+    <string name="title_activity_touch_screen_demo">Touch Screen Demo</string>
+	<string name="title_activity_raw_hiddemo">Raw HID Demo</string>
+	
     <string-array name="array_layouts">
-        <item>en-US</item>
-        <item>pl-PL</item>
-        <item>de-DE</item>
-        <item>de-DE-mac</item>        
-        <item>da-DK</item>        
+        <item>fr-BE</item>        
+        <item>da-DK</item>
+        <item>nl-NL</item>
         <item>en-GB</item>
-        <item>fi-FI</item>
+        <item>en-US-int</item>
+        <item>en-US</item>
+        <item>fi-FI</item>        
         <item>fr-FR</item>
-        <item>fr-CH</item>                
+        <item>fr-FR-linux</item>
+        <item>fr-CA</item>
+        <item>fr-CH</item>
+        <item>de-DE</item>
+        <item>de-DE-mac</item>
         <item>de-CH</item>
+        <item>el-GR</item>
         <item>he-IL</item>
+        <item>hu-HU</item>
         <item>it-IT</item>
-        <item>nb-NO</item>        
+        <item>nb-NO</item>
+        <item>pl-PL</item>
+        <item>pl-PL-linux</item>
+        <item>pt-PT</item>
         <item>pt-BR</item>
         <item>ru-RU</item>
         <item>sk-SK</item>
@@ -28,5 +39,9 @@
         <item>sv-SE</item>
         <item>en-DV</item>
     </string-array>
+
+
+    <string name="hello_world">Hello world!</string>
+
 
 </resources>
