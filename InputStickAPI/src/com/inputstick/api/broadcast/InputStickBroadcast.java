@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 
 import com.inputstick.api.DownloadDialog;
+import com.inputstick.api.Util;
 
 
 /*
@@ -62,6 +63,10 @@ public class InputStickBroadcast {
 	
 	public static final String PARAM_CONSUMER = 	"CONSUMER";
 
+	public static final String PARAM_REPORT_TOUCH = "REPORT_TOUCHSCREEN";
+	public static final String PARAM_TOUCH_CLICKS =	"TOUCH_CLICKS";	
+	public static final String PARAM_TOUCH_X =		"TOUCH_X";
+	public static final String PARAM_TOUCH_Y =		"TOUCH_Y";
 	
 	
 	
@@ -425,6 +430,106 @@ public class InputStickBroadcast {
 			ctx.sendBroadcast(intent);	
 		}				
 	}
+
 	
+	
+	
+	//#######################################################################################################
+	//##### TOUCH SCREEN INTERFACE ##########################################################################
+	//#######################################################################################################	
+	
+	/*
+	 * Puts single touch screen report into queue. 
+	 * Requires firmware 0.98D or later and InputStickUtility 1.49 or later!
+	 * 
+	 * HID touch screen report represents current state of touch screen interface.
+	 * Must be 6 bytes long:
+	 * report[0] = 4 (touch screen interface report ID, constant)
+	 * report[1] = 1st bit: tip switch (same as left mouse button, 1: pressed, 0: released); 2nd bit: in range (1: in range, 0: out of range)
+	 * report[2] = x coordinate (LSB)
+	 * report[3] = x coordinate (MSB)
+	 * report[4] = y coordinate (LSB)
+	 * report[5] = y coordinate (MSB)
+	 * 
+	 * Note: for x,y 10000 = 100% of vertical/horizontal resolution of the screen. 
+	 * 
+	 * @param ctx		context used to send broadcast.
+	 * @param report	HID touch screen report.
+	 */
+	public static void touchScreenReport(Context ctx, byte[] report) {
+		Intent intent = new Intent();			
+		intent.putExtra(PARAM_REPORT_TOUCH, report);			
+		send(ctx, intent);	
+	}
+	
+	
+	/*
+	 * Puts single HID touch screen report into queue. 
+	 * Requires firmware 0.98D or later and InputStickUtility 1.49 or later!
+	 * 
+	 * @param ctx		context used to send broadcast.
+	 * @param tipSwitch	button clicked (same as left mouse button)
+	 * @param inRange	touch device is in range (going out of range will hide additional UI on Windows OS)
+	 * @param x			x axis position (10000 = 100% of screen width)
+	 * @param y			y axis position (10000 = 100% of screen height)
+	 */
+	public static void touchScreenReport(Context ctx, boolean tipSwitch, boolean inRange, int x, int y) {
+		byte[] report = new byte[6];
+		report[0] = 0x04;
+		
+		if (tipSwitch) {
+			report[1] = 0x01;
+		}
+		if (inRange) {
+			report[1] += 0x02;
+		} 		
+		report[2] = Util.getLSB(x);
+		report[3] = Util.getMSB(x);		
+		report[4] = Util.getLSB(y);
+		report[5] = Util.getMSB(y);
+		touchScreenReport(ctx, report);
+	}	
+		
+	
+	/*
+	 * Move mouse pointer (using touch screen interface) to position specified by x and y. 
+	 * Requires firmware 0.98D or later and InputStickUtility 1.49 or later!
+	 * 
+	 * @param ctx		context used to send broadcast.
+	 * @param x			x position of mouse pointer (10000 = 100% of screen width) 
+	 * @param y			y position of mouse pointer (10000 = 100% of screen height)
+	 */	
+	public static void touchScreenMove(Context ctx, int x, int y) {
+		touchScreenReport(ctx, false, true, x, y);
+	}
+	
+	
+	/*
+	 * Perform N clicks at position specified by x,y (press and release) using touch screen interface. Same as left mouse button clicks.
+	 * Requires firmware 0.98D or later and InputStickUtility 1.49 or later!
+	 * 
+	 * @param ctx		context used to send broadcast.
+	 * @param n			number of clicks
+	 * @param x			x position of mouse pointer (10000 = 100% of screen width) 
+	 * @param y			y position of mouse pointer (10000 = 100% of screen height) 
+	 */		
+	public static void touchScreenClick(Context ctx, int n, int x, int y) {
+		Intent intent = new Intent();			
+		intent.putExtra(PARAM_TOUCH_CLICKS, n);	
+		intent.putExtra(PARAM_TOUCH_X, x);	
+		intent.putExtra(PARAM_TOUCH_Y, y);	
+		send(ctx, intent);		
+	}
+	
+	
+	/*
+	 * Move mouse pointer to top left corner of the screen (using touch screen interface) and simulates stylus (finger) going out of range
+	 * Requires firmware 0.98D or later and InputStickUtility 1.49 or later!
+	 * 
+	 * @param ctx		context used to send broadcast.
+	 */	
+	public static void touchScreenGoOutOfRange(Context ctx) {
+		touchScreenReport(ctx, false, false, 0, 0);
+	}
 
 }
