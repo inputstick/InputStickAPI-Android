@@ -9,11 +9,15 @@
         android:orientation="vertical"
         android:padding="20dp" >
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Keyboard interface:" />
+
         <Button
             android:id="@+id/buttonTypeSlow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:text="Type (slow)" />
 
         <Button
@@ -70,10 +74,15 @@
                 android:text="Release all keys" />
         </LinearLayout>
 
-        <LinearLayout
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp" >
+            android:layout_marginTop="5dp"
+            android:text="Mouse interface:" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
 
             <Button
                 android:id="@+id/buttonClick"
@@ -96,14 +105,37 @@
                 android:layout_weight="1"
                 android:text="Scroll down" />
         </LinearLayout>
-        
-		<Button
-            android:id="@+id/buttonMute"
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
+            android:text="Consumer control interface:" />
+
+        <Button
+            android:id="@+id/buttonMute"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="Mute" />
-		        
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="Touch screen interface (requires firmware 0.98D or newer):" />
+
+        <Button
+            android:id="@+id/buttonTouchScreenCenter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Move pointer to center" />
+        
+        <Button
+            android:id="@+id/buttonTouchScreenOutOfRange"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Go out of range" />           
+
     </LinearLayout>
 
 </ScrollView>

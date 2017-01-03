@@ -96,7 +96,7 @@ public class DemoActivity extends Activity {
 			public void onClick(View arg0) {	
 				//move cursor				
 				InputStickBroadcast.mouseReport(DemoActivity.this, (byte)0x00, (byte)50, (byte)(-25), (byte)0x00);
-				//note: IntentAPI is not a good choice when low latency is required (sending several mouse reports one after another). 
+				//note: IntentAPI (using broadcasts) is not a good choice when low latency is required (sending several mouse reports one after another). 
 				//If using mouse interface is important part of your app, you should consider using standard API
 			}
 		});		
@@ -116,6 +116,24 @@ public class DemoActivity extends Activity {
 				InputStickBroadcast.consumerControlAction(DemoActivity.this, InputStickConsumer.VOL_MUTE);
 			}
 		});		
+		
+		//touch screen (requires firmware 0.98D or newer, InputStickUtility v1.49 or newer)
+		b = (Button)findViewById(R.id.buttonTouchScreenCenter);
+		b.setOnClickListener(new OnClickListener() {
+			public void onClick(View arg0) {	
+				//move mouse pointer to center of the screen using touch screen interface
+				//range: 0-10000; 10000 = 100% or vertical/horizontal resolution
+				InputStickBroadcast.touchScreenMove(DemoActivity.this, 5000, 5000);
+			}
+		});		
+		b = (Button)findViewById(R.id.buttonTouchScreenOutOfRange);
+		b.setOnClickListener(new OnClickListener() {
+			public void onClick(View arg0) {	
+				//simulate lifting finger / stylug going out or range. Windows OS will hide additional touch screen UI elements
+				InputStickBroadcast.touchScreenGoOutOfRange(DemoActivity.this);
+			}
+		});		
+		
 	}
 	
 	
@@ -123,7 +141,7 @@ public class DemoActivity extends Activity {
 	public void onResume() {
 		super.onResume(); 	
 		//establishing connection takes about 2-3 seconds (BT2.1) or 1 seconds (BT4.0).
-		//if started now, it is possible that connection will be established by the time user presses a button.
+		//if started now, it is possible that connection will be established by the time user presses any button.
 		InputStickBroadcast.requestConnection(this);	    
 	}	   
 }
