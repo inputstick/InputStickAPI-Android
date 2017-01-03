@@ -7,7 +7,9 @@ import com.inputstick.api.hid.TouchScreenReport;
 public class InputStickTouchScreen {
 	
 	/*
-	 * Touchscreen interface works with Windows 7 or later (tested on 7 and 10), Linux (tested on Linux Mint) and OS X (tested on 10.12)
+	 * Touch screen interface works with Windows 7 or later (tested on 7 and 10), Linux (tested on Linux Mint) and OS X (tested on 10.12)
+	 * Touch screen interface uses absolute screen coordinates. It always allows to move mouse pointer to desired point on the screen, no matter what was its initial position.
+	 * (mouse interface uses relative coordinates)
 	 * Note: requires firmware 0.98D or later. 
 	 * 
 	 */
@@ -84,7 +86,7 @@ public class InputStickTouchScreen {
 	
 	
 	/*
-	 * Send custom mouse pointer report
+	 * Send custom touch screen report
 	 * 
 	 * @param tipSwitch	state of tip switch (same as left mouse button)
 	 * @param inRange	specifies if emulated mouse pointing device is in range
