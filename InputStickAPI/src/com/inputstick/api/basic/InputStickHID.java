@@ -19,7 +19,6 @@ import com.inputstick.api.InputStickError;
 import com.inputstick.api.InputStickStateListener;
 import com.inputstick.api.OnEmptyBufferListener;
 import com.inputstick.api.Packet;
-import com.inputstick.api.Util;
 import com.inputstick.api.hid.HIDReport;
 import com.inputstick.api.hid.HIDTransaction;
 import com.inputstick.api.hid.HIDTransactionQueue;
@@ -610,15 +609,11 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 		byte cmd = data[0];
 		if (cmd == Packet.CMD_FW_INFO) {
 			mDeviceInfo = new DeviceInfo(data);		
-			Util.debug = true;
-			Util.printHex(null, "hello info"); //TODO !!!!!!!!!!!!!
 		}
 		
 		if (cmd == Packet.CMD_HID_DATA_RAW) {
-			//byte b;
-			Util.printHex(data, "RAW DATA: ");
 			if (data.length > 65) {
-				InputStickRawHID.notifyRawHIDListeners( Arrays.copyOfRange(data, 1, 65));
+				InputStickRawHID.notifyRawHIDListeners(Arrays.copyOfRange(data, 1, 65));
 			}
 		}
 		
