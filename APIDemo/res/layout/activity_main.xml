@@ -57,6 +57,20 @@
             android:text="Gamepad" />
 
         <Button
+            android:id="@+id/buttonTouchScreen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Touch Screen" />
+
+        <Button
+            android:id="@+id/buttonRawHID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Raw HID" />
+
+        <Button
             android:id="@+id/buttonWeb"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
