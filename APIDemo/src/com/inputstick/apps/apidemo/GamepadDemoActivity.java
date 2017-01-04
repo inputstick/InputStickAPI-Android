@@ -99,7 +99,7 @@ public class GamepadDemoActivity extends Activity implements InputStickStateList
 	    super.onResume(); 
 	    mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
 
-		InputStickHID.addStateListener(GamepadDemoActivity.this);
+		InputStickHID.addStateListener(this);
 	    manageUI(InputStickHID.getState());	    
 	    
 		t = new Timer();
@@ -117,7 +117,6 @@ public class GamepadDemoActivity extends Activity implements InputStickStateList
 	}
 	
 	private void manageUI(int state) {
-		 System.out.println("manage");
 		if (state == ConnectionManager.STATE_READY) {
 			enableUI(true);
 		} else {

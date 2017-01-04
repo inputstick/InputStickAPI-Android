@@ -165,9 +165,9 @@ public class KeyboardDemoActivity extends Activity implements InputStickStateLis
 	public void onResume() {
 	    super.onResume(); 
 	    //callback will occur when connection state changes
-		InputStickHID.addStateListener(KeyboardDemoActivity.this);
+		InputStickHID.addStateListener(this);
 	    //callback will occur when USB host changes state of NumLock, CapsLock or ScrollLock LEDs 
-	    InputStickKeyboard.addKeyboardListener(KeyboardDemoActivity.this);
+	    InputStickKeyboard.addKeyboardListener(this);
 	    
 	    //get current connection state and adjust UI accordingly:
 	    manageUI(InputStickHID.getState());	   

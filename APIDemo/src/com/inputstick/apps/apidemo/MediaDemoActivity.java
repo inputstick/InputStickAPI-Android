@@ -101,7 +101,7 @@ public class MediaDemoActivity extends Activity implements InputStickStateListen
 	@Override
 	public void onResume() {
 	    super.onResume(); 
-		InputStickHID.addStateListener(MediaDemoActivity.this);
+		InputStickHID.addStateListener(this);
 	    manageUI(InputStickHID.getState());	    
 	}	
 	

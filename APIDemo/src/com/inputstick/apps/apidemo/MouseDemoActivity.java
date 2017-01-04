@@ -140,7 +140,7 @@ public class MouseDemoActivity extends Activity implements InputStickStateListen
 	@Override
 	public void onResume() {
 	    super.onResume(); 
-		InputStickHID.addStateListener(MouseDemoActivity.this);
+		InputStickHID.addStateListener(this);
 	    manageUI(InputStickHID.getState());	    
 	}	
 	
