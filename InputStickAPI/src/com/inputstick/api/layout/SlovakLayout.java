@@ -141,8 +141,8 @@ public class SlovakLayout extends KeyboardLayout {
 		{  250,	    0,	   47,	    0,	    0	},	// ú
 		{  252,	    0,	   24,	   64,	   45	},	// ü
 		{  253,	    0,	   36,	    0,	    0	},	// ý
-		{  258,	    2,	    4,	   64,	   32	},	// Ã
-		{  259,	    0,	    4,	   64,	   32	},	// ã
+		{  258,	    2,	    4,	   64,	   33	},	// Ã		//manual fix (changed deadkey altgr+'3' to altgr+'4'; 32-33)
+		{  259,	    0,	    4,	   64,	   33	},	// ã		//manual fix (changed deadkey altgr+'3' to altgr+'4'; 32-33)
 		{  260,	    2,	    4,	   64,	   35	},	// ¥
 		{  261,	    0,	    4,	   64,	   35	},	// ¹
 		{  262,	    2,	    6,	   64,	   38	},	// Æ
