@@ -122,11 +122,15 @@ Your application must have `BLUETOOTH` and `BLUETOOTH_ADMIN` permissions. Since 
 ## Keyboard layouts:
 Always make sure that selected layout matches layout used by USB host (PC). Due to limitations of USB-HID it is not possible for InputStick to know what layout is use by the USB host. This must be manually provided by the user.
 List of currently available keyboard layouts:
+* fr-BE 			- French (Belgian),
+* hr-HR 			- Croatian (Croatia),
+* cs-CZ 			- Czech (Czech Republic),
 * da-DK 			- Danish (Denmark),
-* da-DK 			- Dutch (Netherlands),
+* nl-NL 			- Dutch (Netherlands),
 * de-CH 			- German (Switzerland),
 * de-DE 			- German (Germany),
 * de-DE (MAC) 	- German (Germany), Mac compatible version,
+* el-GR 			- Greek (Greece),
 * en-DV 			- English (United States), Dvorak layout,
 * en-GB 			- English (United Kingdom),
 * en-US 			- English (United States),
