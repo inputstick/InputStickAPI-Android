@@ -63,8 +63,6 @@ public class HIDTransactionQueue {
 		switch (interfaceType) {
 			case InputStickHID.INTERFACE_KEYBOARD:
 				cmd = Packet.CMD_HID_DATA_KEYB;
-				//TODO mod
-				//cmd = Packet.CMD_HID_DATA_KEYB_FAST;
 				break;
 			case InputStickHID.INTERFACE_MOUSE:
 				cmd = Packet.CMD_HID_DATA_MOUSE;

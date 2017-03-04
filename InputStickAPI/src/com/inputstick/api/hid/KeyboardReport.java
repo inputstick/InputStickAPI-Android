@@ -2,7 +2,7 @@ package com.inputstick.api.hid;
 
 public class KeyboardReport extends HIDReport {
 	
-	public static final int SIZE = 8;
+	public static final int SIZE = 8; 
 	
 	private byte[] data;
 
