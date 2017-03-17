@@ -19,7 +19,6 @@ import com.inputstick.api.InputStickError;
 import com.inputstick.api.InputStickStateListener;
 import com.inputstick.api.OnEmptyBufferListener;
 import com.inputstick.api.Packet;
-import com.inputstick.api.hid.HIDReport;
 import com.inputstick.api.hid.HIDTransaction;
 import com.inputstick.api.hid.HIDTransactionQueue;
 import com.inputstick.api.init.BasicInitManager;
@@ -49,10 +48,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	
 		
 	//FW 0.93 - 0.95
-	private static Timer updateQueueTimer;
-	
-	
-	private static int mKeyboardReportMultiplier; //enables "slow" typing by multiplying HID reports
+	private static Timer updateQueueTimer;	
 	
 	private InputStickHID() {
 	}
@@ -166,38 +162,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	 */	
 	public static void connect(Application app, String mac, byte[] key) {
 		connect(app, mac, key, false);
-	}
-	
-	
-	/*
-	 * When keyboard transactions are queued, each individual HID keyboard report is duplicated by reportMultiplier.
-	 * Allows to control typing speed. Can help with missing characters (for example in BIOS).
-	 * Important! Value of multiplier should be manually restored back to 1, when slow typing is no longer needed!
-	 *  
-	 * Example: press and release "a" key:
-	 * 1) Multiplier = 1
-	 * "a" key presses, all keys released
-	 * 2 HID reports, fastest typing speed
-	 * 2) Multiplier = 2
-	 * "a" key presses, "a" key presses, all keys released, all keys released
-	 * 4 HID reports, 50% slower typing speed
-	 * 
-	 * 
-	 * @param reportMultiplier	number by which each HID report will be duplicated
-	 */
-	public static void setKeyboardReportMultiplier(int reportMultiplier) {
-		mKeyboardReportMultiplier = reportMultiplier;
-	}
-	
-	
-	/*
-	 * Returns value of keyboard report multiplier
-	 * 
-	 * @return keyboard report multiplier
-	 */
-	public static int getKeyboardReportMultiplier(int reportMultiplier) {
-		return mKeyboardReportMultiplier;
-	}
+	}	
 
 
 	/*
@@ -211,6 +176,16 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
             InputStickHID.sendPacket(p);
 			mConnectionManager.sendPacket(p);
 		}
+	}
+	
+	
+	/*
+	 * Returns ConnectionManager
+	 * 
+	 * @return ConnectionManager
+	 */
+	public static ConnectionManager getConnectionManager() {
+		return mConnectionManager;
 	}
 	
 	
@@ -366,21 +341,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	 */
 	public static void addKeyboardTransaction(HIDTransaction transaction) {
 		if ((transaction != null) && (keyboardQueue != null)) {
-			//keyboardQueue.addTransaction(transaction);
-			
-			if (mKeyboardReportMultiplier > 1) {
-				HIDTransaction multipliedTransaction = new HIDTransaction();
-				HIDReport r;
-				for (int i = 0; i < transaction.getReportsCount(); i++) {
-					r = transaction.getHIDReportAt(i);
-					for (int j = 0; j < mKeyboardReportMultiplier; j++) {
-						multipliedTransaction.addReport(r);
-					}
-				}
-				keyboardQueue.addTransaction(multipliedTransaction);
-			} else {
-				keyboardQueue.addTransaction(transaction);
-			}
+			keyboardQueue.addTransaction(transaction);	
 		}
 	}
 	
@@ -463,6 +424,17 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 		}
 	}
 	
+	
+	/*
+	 * Removes all reports from all buffers.	 
+	 */
+	public static void clearAllBuffers() {
+		clearKeyboardBuffer();
+		clearMouseBuffer();
+		clearConsumerBuffer();
+		clearRawHIDBuffer();
+	}
+	
 
 	/*
 	 * Sends custom packet to InputStick.
@@ -480,7 +452,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 
 	
 	/*
-	 * Checks if local (Android device) keyboard report buffer is empty. It is possible that there are reports queued in InputStick's buffer.
+	 * Checks if local (Android device) keyboard report buffer is empty. It is possible that there are reports queued remote (InputStick device) buffer.
 	 *
 	 * @return true if local keyboard buffer is empty, false otherwise
 	 */
@@ -494,7 +466,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	
 	
 	/*
-	 * Checks if local (Android device) mouse report buffer is empty. It is possible that there are reports queued in InputStick's buffer.
+	 * Checks if local (Android device) mouse report buffer is empty. It is possible that there are reports queued in remote (InputStick device) buffer.
 	 *
 	 * @return true if local mouse buffer is empty, false otherwise
 	 */
@@ -508,7 +480,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	
 	
 	/*
-	 * Checks if local (Android device) consumer control report buffer is empty. It is possible that there are reports queued in InputStick's buffer.
+	 * Checks if local (Android device) consumer control report buffer is empty. It is possible that there are reports queued remote (InputStick device) buffer.
 	 *
 	 * @return true if local consumer control buffer is empty, false otherwise
 	 */
@@ -522,7 +494,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	
 	
 	/*
-	 * Checks if local (Android device) raw HID report buffer is empty. It is possible that there are reports queued in InputStick's buffer.
+	 * Checks if local (Android device) raw HID report buffer is empty. It is possible that there are reports queued in remote (InputStick device) buffer.
 	 *
 	 * @return true if local raw HID buffer is empty, false otherwise
 	 */
@@ -536,7 +508,17 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	
 	
 	/*
-	 * Checks if local (Android device) AND remote (InputStick) keyboard report buffers are empty.
+	 * Checks if all local (Android device) report buffers are empty. It is possible that there are reports queued in remote (InputStick device) buffers.
+	 *
+	 * @return true if local raw HID buffer is empty, false otherwise
+	 */
+	public static boolean areAllLocalBuffersEmpty() {
+		return (isKeyboardLocalBufferEmpty() && isMouseLocalBufferEmpty() && isConsumerLocalBufferEmpty() && isRawHIDLocalBufferEmpty());
+	}
+	
+	
+	/*
+	 * Checks if local (Android device) AND remote (InputStick device) keyboard report buffers are empty.
 	 *
 	 * @return true if local and remote keyboard buffers are empty, false otherwise
 	 */
@@ -550,7 +532,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	
 	
 	/*
-	 * Checks if local (Android device) AND remote (InputStick) mouse report buffers are empty.
+	 * Checks if local (Android device) AND remote (InputStick device) mouse report buffers are empty.
 	 *
 	 * @return true if local and remote mouse buffers are empty, false otherwise
 	 */
@@ -564,7 +546,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	
 	
 	/*
-	 * Checks if local (Android device) AND remote (InputStick) consumer control report buffers are empty.
+	 * Checks if local (Android device) AND remote (InputStick device) consumer control report buffers are empty.
 	 *
 	 * @return true if local and remote consumer control buffers are empty, false otherwise
 	 */
@@ -578,7 +560,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 
 	
 	/*
-	 * Checks if local (Android device) AND remote (InputStick) raw HID report buffers are empty.
+	 * Checks if local (Android device) AND remote (InputStick device) raw HID report buffers are empty.
 	 *
 	 * @return true if local and remote raw HID buffers are empty, false otherwise
 	 */
@@ -591,6 +573,14 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	}
 	
 	
+	/*
+	 * Checks if all local (Android device) AND remote (InputStick device) report buffers are empty.
+	 *
+	 * @return true if local raw HID buffer is empty, false otherwise
+	 */
+	public static boolean areAllRemoteBuffersEmpty() {
+		return (isKeyboardRemoteBufferEmpty() && isMouseRemoteBufferEmpty() && isConsumerRemoteBufferEmpty() && isRawHIDRemoteBufferEmpty());
+	}
 	
 	
 	@Override
