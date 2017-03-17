@@ -2,7 +2,10 @@ package com.inputstick.api.layout;
 
 public class FinnishLayout extends KeyboardLayout {
 	
-	public static final String LOCALE_NAME = "fi-FI";
+	public static final String LOCALE_NAME = 			"fi-FI";
+	public static final String LAYOUT_NAME_NATIVE = 	"Suomi";
+	public static final String LAYOUT_NAME_ENGLISH = 	"Finnish";
+	public static final String LAYOUT_VARIANT = 		"FI";
 	
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}
 	//fi-FI
@@ -359,8 +362,18 @@ public class FinnishLayout extends KeyboardLayout {
 	}	
 	
 	@Override
+	public void type(String text, int typingSpeed) {
+		super.type(FAST_LUT, text, (byte)0, typingSpeed);
+	}
+	
+	@Override
 	public void type(String text, byte modifiers) {
 		super.type(FAST_LUT, text, modifiers);
+	}
+	
+	@Override
+	public void type(String text, byte modifiers, int typingSpeed) {
+		super.type(FAST_LUT, text, modifiers, typingSpeed);
 	}
 	
 	@Override
@@ -372,6 +385,21 @@ public class FinnishLayout extends KeyboardLayout {
 	public String getLocaleName() {		
 		return LOCALE_NAME;
 	}	
+	
+	@Override
+	public String getNativeName() {
+		return LAYOUT_NAME_NATIVE; 
+	}
+	
+	@Override
+	public String getEnglishName() {
+		return LAYOUT_NAME_ENGLISH;
+	}
+	
+	@Override
+	public String getVariant() {
+		return LAYOUT_VARIANT;
+	}
 	
 	@Override
 	public int[][] getDeadkeyLUT() {		

@@ -2,7 +2,10 @@ package com.inputstick.api.layout;
 
 public class PortugueseBrazilianLayout  extends KeyboardLayout {
 	
-	public static final String LOCALE_NAME = "pt-BR";
+	public static final String LOCALE_NAME = 			"pt-BR";
+	public static final String LAYOUT_NAME_NATIVE = 	"Português";
+	public static final String LAYOUT_NAME_ENGLISH = 	"Portuguese";
+	public static final String LAYOUT_VARIANT = 		"BR";
 	
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}
 	//pt-BR
@@ -370,8 +373,18 @@ public class PortugueseBrazilianLayout  extends KeyboardLayout {
 	}	
 	
 	@Override
+	public void type(String text, int typingSpeed) {
+		super.type(FAST_LUT, text, (byte)0, typingSpeed);
+	}
+	
+	@Override
 	public void type(String text, byte modifiers) {
 		super.type(FAST_LUT, text, modifiers);
+	}
+	
+	@Override
+	public void type(String text, byte modifiers, int typingSpeed) {
+		super.type(FAST_LUT, text, modifiers, typingSpeed);
 	}
 
 	@Override
@@ -383,6 +396,21 @@ public class PortugueseBrazilianLayout  extends KeyboardLayout {
 	public String getLocaleName() {		
 		return LOCALE_NAME;
 	}	
+	
+	@Override
+	public String getNativeName() {
+		return LAYOUT_NAME_NATIVE; 
+	}
+	
+	@Override
+	public String getEnglishName() {
+		return LAYOUT_NAME_ENGLISH;
+	}
+	
+	@Override
+	public String getVariant() {
+		return LAYOUT_VARIANT;
+	}
 	
 	@Override
 	public int[][] getDeadkeyLUT() {		

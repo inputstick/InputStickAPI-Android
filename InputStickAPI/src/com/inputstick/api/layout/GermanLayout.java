@@ -2,7 +2,10 @@ package com.inputstick.api.layout;
 
 public class GermanLayout extends KeyboardLayout {
 	
-	public static final String LOCALE_NAME = "de-DE";
+	public static final String LOCALE_NAME = 			"de-DE";
+	public static final String LAYOUT_NAME_NATIVE = 	"Deutsch";
+	public static final String LAYOUT_NAME_ENGLISH = 	"German";
+	public static final String LAYOUT_VARIANT = 		"DE";
 	
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}
 	//de-DE
@@ -327,8 +330,18 @@ public class GermanLayout extends KeyboardLayout {
 	}	
 	
 	@Override
+	public void type(String text, int typingSpeed) {
+		super.type(FAST_LUT, text, (byte)0, typingSpeed);
+	}
+	
+	@Override
 	public void type(String text, byte modifiers) {
 		super.type(FAST_LUT, text, modifiers);
+	}
+	
+	@Override
+	public void type(String text, byte modifiers, int typingSpeed) {
+		super.type(FAST_LUT, text, modifiers, typingSpeed);
 	}
 	
 	@Override
@@ -339,7 +352,22 @@ public class GermanLayout extends KeyboardLayout {
 	@Override
 	public String getLocaleName() {		
 		return LOCALE_NAME;
-	}		
+	}	
+	
+	@Override
+	public String getNativeName() {
+		return LAYOUT_NAME_NATIVE; 
+	}
+	
+	@Override
+	public String getEnglishName() {
+		return LAYOUT_NAME_ENGLISH;
+	}
+	
+	@Override
+	public String getVariant() {
+		return LAYOUT_VARIANT;
+	}
 	
 	@Override
 	public int[][] getDeadkeyLUT() {		

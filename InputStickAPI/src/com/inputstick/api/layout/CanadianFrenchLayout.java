@@ -2,7 +2,10 @@ package com.inputstick.api.layout;
 
 public class CanadianFrenchLayout extends KeyboardLayout {
 	
-	public static final String LOCALE_NAME = "fr-CA";
+	public static final String LOCALE_NAME = 			"fr-CA";
+	public static final String LAYOUT_NAME_NATIVE = 	"Français";
+	public static final String LAYOUT_NAME_ENGLISH = 	"French";
+	public static final String LAYOUT_VARIANT = 		"CA";
 	
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}
 	//fr-CA
@@ -359,9 +362,19 @@ public class CanadianFrenchLayout extends KeyboardLayout {
 	}	
 	
 	@Override
+	public void type(String text, int typingSpeed) {
+		super.type(FAST_LUT, text, (byte)0, typingSpeed);
+	}
+	
+	@Override
 	public void type(String text, byte modifiers) {
 		super.type(FAST_LUT, text, modifiers);
 	}
+	
+	@Override
+	public void type(String text, byte modifiers, int typingSpeed) {
+		super.type(FAST_LUT, text, modifiers, typingSpeed);
+	}	
 	
 	@Override
 	public char getChar(int scanCode, boolean capsLock, boolean shift, boolean altGr) {
@@ -372,6 +385,21 @@ public class CanadianFrenchLayout extends KeyboardLayout {
 	public String getLocaleName() {		
 		return LOCALE_NAME;
 	}	
+	
+	@Override
+	public String getNativeName() {
+		return LAYOUT_NAME_NATIVE; 
+	}
+	
+	@Override
+	public String getEnglishName() {
+		return LAYOUT_NAME_ENGLISH;
+	}
+	
+	@Override
+	public String getVariant() {
+		return LAYOUT_VARIANT;
+	}
 	
 	@Override
 	public int[][] getDeadkeyLUT() {		

@@ -2,7 +2,10 @@ package com.inputstick.api.layout;
 
 public class UnitedKingdomLayout extends KeyboardLayout {
 	
-	public static final String LOCALE_NAME = "en-GB";
+	public static final String LOCALE_NAME = 			"en-GB";
+	public static final String LAYOUT_NAME_NATIVE =	 	"English";
+	public static final String LAYOUT_NAME_ENGLISH = 	"English";
+	public static final String LAYOUT_VARIANT = 		"UK";
 	
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}
 	//en-GB
@@ -255,9 +258,19 @@ public class UnitedKingdomLayout extends KeyboardLayout {
 	}	
 	
 	@Override
+	public void type(String text, int typingSpeed) {
+		super.type(FAST_LUT, text, (byte)0, typingSpeed);
+	}
+	
+	@Override
 	public void type(String text, byte modifiers) {
 		super.type(FAST_LUT, text, modifiers);
-	}	
+	}
+	
+	@Override
+	public void type(String text, byte modifiers, int typingSpeed) {
+		super.type(FAST_LUT, text, modifiers, typingSpeed);
+	}
 	
 	@Override
 	public char getChar(int scanCode, boolean capsLock, boolean shift, boolean altGr) {
@@ -270,9 +283,24 @@ public class UnitedKingdomLayout extends KeyboardLayout {
 	}	
 	
 	@Override
+	public String getNativeName() {
+		return LAYOUT_NAME_NATIVE; 
+	}
+	
+	@Override
+	public String getEnglishName() {
+		return LAYOUT_NAME_ENGLISH;
+	}
+	
+	@Override
+	public String getVariant() {
+		return LAYOUT_VARIANT;
+	}
+	
+	@Override
 	public int[][] getDeadkeyLUT() {		
 		return DEADKEY_LUT;
-	}
+	}	
 
 	@Override
 	public int[] getDeadkeys() {

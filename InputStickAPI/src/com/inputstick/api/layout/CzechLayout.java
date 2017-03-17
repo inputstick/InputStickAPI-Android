@@ -1,9 +1,11 @@
 package com.inputstick.api.layout;
 
-
 public class CzechLayout extends KeyboardLayout {
 	
-	public static final String LOCALE_NAME = "cs-CZ";
+	public static final String LOCALE_NAME = 			"cs-CZ";
+	public static final String LAYOUT_NAME_NATIVE =	 	"Čeština";
+	public static final String LAYOUT_NAME_ENGLISH = 	"Czech";
+	public static final String LAYOUT_VARIANT = 		"CZ";
 	
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}
 	//cs-CZ
@@ -411,8 +413,18 @@ public class CzechLayout extends KeyboardLayout {
 	}	
 	
 	@Override
+	public void type(String text, int typingSpeed) {
+		super.type(FAST_LUT, text, (byte)0, typingSpeed);
+	}
+	
+	@Override
 	public void type(String text, byte modifiers) {
 		super.type(FAST_LUT, text, modifiers);
+	}
+	
+	@Override
+	public void type(String text, byte modifiers, int typingSpeed) {
+		super.type(FAST_LUT, text, modifiers, typingSpeed);
 	}
 
 	@Override
@@ -424,6 +436,21 @@ public class CzechLayout extends KeyboardLayout {
 	public String getLocaleName() {		
 		return LOCALE_NAME;
 	}	
+	
+	@Override
+	public String getNativeName() {
+		return LAYOUT_NAME_NATIVE; 
+	}
+	
+	@Override
+	public String getEnglishName() {
+		return LAYOUT_NAME_ENGLISH;
+	}
+	
+	@Override
+	public String getVariant() {
+		return LAYOUT_VARIANT;
+	}
 	
 	@Override
 	public int[][] getDeadkeyLUT() {		

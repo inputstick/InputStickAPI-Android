@@ -2,7 +2,10 @@ package com.inputstick.api.layout;
 
 public class CroatianLayout extends KeyboardLayout {
 	
-	public static final String LOCALE_NAME = "hr-HR";
+	public static final String LOCALE_NAME = 			"hr-HR";
+	public static final String LAYOUT_NAME_NATIVE = 	"Hrvatski";
+	public static final String LAYOUT_NAME_ENGLISH = 	"Croatian";
+	public static final String LAYOUT_VARIANT = 		"HR";
 	
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}	
 	private static final int[][] FAST_LUT = {
@@ -399,8 +402,18 @@ public class CroatianLayout extends KeyboardLayout {
 	}	
 	
 	@Override
+	public void type(String text, int typingSpeed) {
+		super.type(FAST_LUT, text, (byte)0, typingSpeed);
+	}
+	
+	@Override
 	public void type(String text, byte modifiers) {
 		super.type(FAST_LUT, text, modifiers);
+	}
+	
+	@Override
+	public void type(String text, byte modifiers, int typingSpeed) {
+		super.type(FAST_LUT, text, modifiers, typingSpeed);
 	}
 	
 	@Override
@@ -412,6 +425,21 @@ public class CroatianLayout extends KeyboardLayout {
 	public String getLocaleName() {		
 		return LOCALE_NAME;
 	}	
+	
+	@Override
+	public String getNativeName() {
+		return LAYOUT_NAME_NATIVE; 
+	}
+	
+	@Override
+	public String getEnglishName() {
+		return LAYOUT_NAME_ENGLISH;
+	}
+	
+	@Override
+	public String getVariant() {
+		return LAYOUT_VARIANT;
+	}
 	
 	@Override
 	public int[][] getDeadkeyLUT() {		
