@@ -31,10 +31,15 @@
             android:text="Keyboard layout used by USB host:" />
 
         <Spinner
-            android:id="@+id/spinner"
+            android:id="@+id/spinnerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        
+        <Spinner
+            android:id="@+id/spinnerSpeed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/array_layouts" />
+            android:layout_marginTop="10dp" />        
 
         <LinearLayout
             android:layout_width="match_parent"
