@@ -1,10 +1,14 @@
 package com.inputstick.apps.apidemo;
 
+import java.util.Arrays;
+import java.util.List;
+
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -15,11 +19,13 @@ import com.inputstick.api.InputStickStateListener;
 import com.inputstick.api.basic.InputStickHID;
 import com.inputstick.api.basic.InputStickKeyboard;
 import com.inputstick.api.hid.HIDKeycodes;
+import com.inputstick.api.layout.KeyboardLayout;
 
 public class KeyboardDemoActivity extends Activity implements InputStickStateListener, InputStickKeyboardListener {
 	
 	private EditText editText;
-	private Spinner spinner;
+	private Spinner spinnerLayout;
+	private Spinner spinnerSpeed;
 	
 	private Button buttonTypeASCII;
 	private Button buttonTypeLayout;
@@ -40,7 +46,24 @@ public class KeyboardDemoActivity extends Activity implements InputStickStateLis
 		setContentView(R.layout.activity_keyboard_demo);
 		
 		editText = (EditText)findViewById(R.id.editText);
-		spinner = (Spinner)findViewById(R.id.spinner);
+				
+		spinnerLayout = (Spinner)findViewById(R.id.spinnerLayout);
+		//add all currently available keyboard layouts, include native names (example: German -> Deutsch)
+		CharSequence[] layoutNames = KeyboardLayout.getLayoutNames(true);
+		ArrayAdapter<CharSequence> adapterLayout = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item, layoutNames);
+		spinnerLayout.setAdapter(adapterLayout);		
+		//select English (US) as an initial value		
+		List<CharSequence> list = Arrays.asList(KeyboardLayout.getLayoutCodes()); 
+		//note: items returned by getLayoutCodes() always match respective values returned by getLayoutNames, example: "German (DE)" and "de-DE" will have the same index
+		spinnerLayout.setSelection(list.indexOf("en-US"));		
+		
+		
+		spinnerSpeed = (Spinner)findViewById(R.id.spinnerSpeed);
+		//add typing speed options
+		String[] speedOptions = {"Fastest", "Normal", "50%", "33%", "25", "20%", "17%", "13%", "11%", "10%"};
+		ArrayAdapter<String> adapterSpeed = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, speedOptions);
+		spinnerSpeed.setAdapter(adapterSpeed);		
+		spinnerSpeed.setSelection(1);		
 		
 		/* Note: since buttons are disabled when InputStick is not ready,
 		 * connection state is not checked again, after user clicks a button
@@ -56,9 +79,19 @@ public class KeyboardDemoActivity extends Activity implements InputStickStateLis
 		buttonTypeLayout = (Button)findViewById(R.id.buttonTypeLayout);
 		buttonTypeLayout.setOnClickListener(new OnClickListener() {
 			public void onClick(View arg0) {
-				//get layout name, examples: "de-DE", "en-US", "pl-PL"
-				//full list: http://inputstick.com/index.php/developers/keyboard-layouts
-				String layoutName = spinner.getSelectedItem().toString();
+				//get layout code, (examples: "de-DE", "en-US", "pl-PL") which matches language selected using spinner
+				//full list: http://inputstick.com/index.php/developers/keyboard-layouts								
+				CharSequence[] layoutCodes = KeyboardLayout.getLayoutCodes();
+				String layoutCode = layoutCodes[spinnerLayout.getSelectedItemPosition()].toString();   
+				
+				//get typing speed
+				//0 - fastest possible typing. Warning: may not work on some configurations! be sure to test it first
+				//1 - normal typing speed, default value
+				//n - for values greater than one typing speed = 100%/n
+				//be careful, for high values you may get duplicated keys (depends on key repeat rate set in OS)
+				int typingSpeed = spinnerSpeed.getSelectedItemPosition();
+				
+				
 				/* it is recommended to always use this way of typing text
 				 * keyboard layout should always match the one used by USB host
 				 * otherwise invalid characters will appear, example:
@@ -81,9 +114,8 @@ public class KeyboardDemoActivity extends Activity implements InputStickStateLis
 				*/
 								
 				//updated API:
-				InputStickKeyboard.type(editText.getText().toString(), layoutName);
-				
-				// '\n' and '\t' characters are supported		
+				InputStickKeyboard.type(editText.getText().toString(), layoutCode, typingSpeed);
+				//note: '\n' and '\t' characters are supported		
 			}
 		});
 		buttonPressEnter = (Button)findViewById(R.id.buttonPressEnter);
