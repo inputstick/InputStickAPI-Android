@@ -12,10 +12,22 @@ import com.inputstick.api.layout.KeyboardLayout;
 
 public class InputStickKeyboard {
 	
+	public static final int TYPING_SPEED_FASTEST = 	0;
+	public static final int TYPING_SPEED_NORMAL = 	1;
+	public static final int TYPING_SPEED_050X = 	2;
+	public static final int TYPING_SPEED_033X = 	3;
+	public static final int TYPING_SPEED_025X = 	4;
+	public static final int TYPING_SPEED_020X = 	5;
+	public static final int TYPING_SPEED_017X = 	6;
+	public static final int TYPING_SPEED_014X = 	7;
+	public static final int TYPING_SPEED_013X = 	8;
+	public static final int TYPING_SPEED_011X = 	9;
+	public static final int TYPING_SPEED_010X = 	10;
+	
 	private static final byte NONE = (byte)0;
 	
-	private static final byte LED_NUM_LOCK = 1;
-	private static final byte LED_CAPS_LOCK = 2;
+	private static final byte LED_NUM_LOCK = 	1;
+	private static final byte LED_CAPS_LOCK = 	2;
 	private static final byte LED_SCROLL_LOCK = 4;
 	
 	private static boolean mReportProtocol;		
@@ -54,6 +66,35 @@ public class InputStickKeyboard {
 	
 	
 	/*
+	 * Uses InputStick to press and then immediately release key combination specified by parameters.
+	 * 
+	 * @param modifier	state of modifier keys (CTRL_LEFT .. GUI_RIGHT, see HIDKeycodes)
+	 * @param key	non-modifier key (see HIDKeycodes)	 
+	 * @param typingSpeed	use 1 for fastest press and release sequence, higher values will keep key pressed for a longer period of time 
+	 */
+	public static void pressAndRelease(byte modifier, byte key, int typingSpeed) {
+		HIDTransaction t = new HIDTransaction();
+		
+		int cnt = typingSpeed;
+		if (cnt < 1) {
+			cnt = 1;
+		}
+		
+		for (int i = 0; i < cnt; i++) {
+			t.addReport(new KeyboardReport(modifier, NONE));
+		}
+		for (int i = 0; i < cnt; i++) {
+			t.addReport(new KeyboardReport(modifier, key));
+		}
+		for (int i = 0; i < cnt; i++) {
+			t.addReport(new KeyboardReport(NONE, NONE));
+		}		
+		
+		InputStickHID.addKeyboardTransaction(t);
+	}		
+	
+	
+	/*
 	 * Type text via InputStick, using selected keyboard layout. USB host must use matching keyboard layout.	 
 	 * For available keyboard layouts see: com.inputstick.api.layout.
 	 * If layout is null or not found, en-US will be used.
@@ -64,7 +105,22 @@ public class InputStickKeyboard {
 	public static void type(String toType, String layoutCode) {
 		KeyboardLayout layout = KeyboardLayout.getLayout(layoutCode);
 		layout.type(toType);
-	}
+	}	
+	
+	
+	/*
+	 * Type text via InputStick, using selected keyboard layout. USB host must use matching keyboard layout.	 
+	 * For available keyboard layouts see: com.inputstick.api.layout.
+	 * If layout is null or not found, en-US will be used.
+	 * 
+	 * @param toType	text to type
+	 * @param layoutCode	code of keyboard layout ("en-US", "de-DE", etc.)
+	 * @param typingSpeed	use 0 for fastest typing speed (may not work with some USB hosts), use 1 for default typing speed, higher values decrease typing speed  
+	 */
+	public static void type(String toType, String layoutCode, int typingSpeed) {
+		KeyboardLayout layout = KeyboardLayout.getLayout(layoutCode);
+		layout.type(toType, typingSpeed);
+	}	
 
 	
 	/*
