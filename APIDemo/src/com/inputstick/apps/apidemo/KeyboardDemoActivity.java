@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.inputstick.api.ConnectionManager;
+import com.inputstick.api.InputStickDataListener;
 import com.inputstick.api.InputStickKeyboardListener;
 import com.inputstick.api.InputStickStateListener;
 import com.inputstick.api.basic.InputStickHID;
@@ -188,7 +189,7 @@ public class KeyboardDemoActivity extends Activity implements InputStickStateLis
 	@Override
 	public void onPause() {	    
 		//remove all listeners:
-		InputStickHID.removeStateListener(this);
+		InputStickHID.removeStateListener(this);		
 		InputStickKeyboard.removeKeyboardListener(this);
 		super.onPause();  
 	}	
@@ -215,7 +216,6 @@ public class KeyboardDemoActivity extends Activity implements InputStickStateLis
 	
 	@Override
 	public void onStateChanged(int state) {
-		//
 		manageUI(state);	
 	}
 	
@@ -261,5 +261,6 @@ public class KeyboardDemoActivity extends Activity implements InputStickStateLis
 			buttonScrollLock.setTextColor(Color.BLACK);
 		}
 	}
+
 	
 }
