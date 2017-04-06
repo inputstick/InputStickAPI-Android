@@ -243,5 +243,15 @@ public abstract class Util {
 		return null;
 	}
 	
+	
+	public static String[] convertToStringArray(CharSequence[] charSequences) {
+	    String[] result = new String[charSequences.length];
+	    for (int i = 0; i < charSequences.length; i++) {
+	    	result[i] = charSequences[i].toString();
+	    }
+
+	    return result;
+	}
+	
 
 }
