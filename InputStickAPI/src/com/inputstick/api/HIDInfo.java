@@ -50,7 +50,7 @@ public class HIDInfo {
 			scrollLock = false;
 		}	
 		
-		if (data[3] == 0) {
+		if (data[3] == 1) {
 			keyboardReportProtocol = true;
 		} else {
 			keyboardReportProtocol = false;
@@ -62,7 +62,7 @@ public class HIDInfo {
 			keyboardReady = true;
 		}
 		
-		if (data[5] == 0) {
+		if (data[5] == 1) {
 			mouseReportProtocol = true;
 		} else {
 			mouseReportProtocol = false;
