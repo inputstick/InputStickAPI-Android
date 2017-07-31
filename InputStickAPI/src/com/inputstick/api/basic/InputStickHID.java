@@ -609,6 +609,8 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 		
 		if (cmd == Packet.CMD_HID_STATUS) {
 			mHIDInfo.update(data);
+			InputStickKeyboard.setReportProtocol(mHIDInfo.isKeyboardReportProtocol());
+			InputStickMouse.setReportProtocol(mHIDInfo.isMouseReportProtocol());
 			
 			if (mHIDInfo.isSentToHostInfoAvailable()) {
 				// >= FW 0.93
