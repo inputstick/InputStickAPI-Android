@@ -5,9 +5,7 @@ import com.inputstick.api.Util;
 public class ConsumerReport extends HIDReport {
 	
 	public static final byte CONSUMER_REPORT_ID = 1;
-	public static final byte SYSTEM_REPORT_ID = 2;
-	public static final byte GAMEPAD_REPORT_ID = 3;
-	
+	public static final byte SYSTEM_REPORT_ID = 2;		
 	public static final int SIZE = 3;
 	
 	private byte[] data;

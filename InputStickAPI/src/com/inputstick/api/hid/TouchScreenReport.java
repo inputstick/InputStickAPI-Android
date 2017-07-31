@@ -4,8 +4,7 @@ import com.inputstick.api.Util;
 
 public class TouchScreenReport extends HIDReport {
 	
-	public static final byte TOUCH_POINTER_REPORT_ID = 4; //TODO move to consumer?
-	
+	public static final byte TOUCH_POINTER_REPORT_ID = 4;	
 	public static final int SIZE = 6;
 	
 	private byte[] data;

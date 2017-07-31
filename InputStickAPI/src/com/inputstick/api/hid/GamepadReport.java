@@ -2,6 +2,7 @@ package com.inputstick.api.hid;
 
 public class GamepadReport extends HIDReport {
 
+	public static final byte GAMEPAD_REPORT_ID = 3;
 	public static final int SIZE = 7;
 	
 	private byte[] data;
