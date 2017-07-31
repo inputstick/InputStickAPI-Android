@@ -119,12 +119,12 @@ public class InputStickMouse {
 	 *
 	 * @return true if USB host uses report protocol, false if USB host uses boot protocol
 	 */
-	public boolean isReportProtocol() {
+	public static boolean isReportProtocol() {
 		return mReportProtocol;
 	}
 	
 	
-	protected void setReportProtocol(boolean reportProtocol) {
+	protected static void setReportProtocol(boolean reportProtocol) {
 		mReportProtocol = reportProtocol;				
 	}
 
