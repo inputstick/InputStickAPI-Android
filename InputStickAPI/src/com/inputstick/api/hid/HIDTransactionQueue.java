@@ -118,6 +118,11 @@ public class HIDTransactionQueue {
 			}
 			
 			transaction = queue.peek();
+			
+			if (transaction.getReportBytesCount() > p.getRemainingFreeSpace()) {
+				break;
+			}
+			
 			transactionCmd = transaction.getTransactionTypeCmd();
 			//do not allow to send multiple transaction types (
 			if (transactionCmd != firstTransactionCmd) {
@@ -266,6 +271,10 @@ public class HIDTransactionQueue {
 				constantUpdateMode = true;
 				// >= FW 0.93
 				bufferFreeSpace += reportsSentToHost;
+				//shouldn't happen!
+				if (bufferFreeSpace > bufferSize) { 
+					bufferFreeSpace = bufferSize;
+				}
 				if ((bufferFreeSpace == bufferSize) && (queue.isEmpty())) {
 					notifyOnRemoteBufferEmpty();
 				}

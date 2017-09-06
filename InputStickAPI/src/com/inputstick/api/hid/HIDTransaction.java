@@ -65,4 +65,12 @@ public class HIDTransaction {
 		return result;
 	}
 	
+	public int getReportBytesCount() {
+		int cnt = 0;
+		for (HIDReport r : reports) {
+			cnt += r.getBytesCount();
+		}
+		return cnt;
+	}
+	
 }

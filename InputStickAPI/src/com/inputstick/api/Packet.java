@@ -84,9 +84,7 @@ public class Packet {
 		mData[0] = cmd;
 		mData[1] = param;
 		mPos = 2;		
-		if (data != null) {
-			addBytes(data);
-		}		
+		addBytes(data);		
 	}
 	
 	public Packet(boolean respond, byte cmd, byte param) {
@@ -104,32 +102,55 @@ public class Packet {
 		mData[pos] = b;
 	}
 	
-	public void addBytes(byte[] data) {
-		//TODO check null pointer / available size (MAX_PAYLOAD - mPos) 
-		System.arraycopy(data, 0, mData, mPos, data.length);
-		mPos += data.length;		
+	public boolean addBytes(byte[] data) {
+		if (data == null) {
+			return true;
+		} 
+
+		if (getRemainingFreeSpace() >= data.length) {
+			System.arraycopy(data, 0, mData, mPos, data.length);
+			mPos += data.length;
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
-	public void addByte(byte b) {
-		mData[mPos++] = b;
+	public boolean addByte(byte b) {
+		if (getRemainingFreeSpace() >= 1) {
+			mData[mPos++] = b;
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
-	public void addInt16(int val) {
-		mData[mPos + 0] = Util.getMSB(val);
-		mData[mPos + 1] = Util.getLSB(val);
-		mPos += 2;
+	public boolean addInt16(int val) {
+		if (getRemainingFreeSpace() >= 2) {
+			mData[mPos + 0] = Util.getMSB(val);
+			mData[mPos + 1] = Util.getLSB(val);
+			mPos += 2;
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
-	public void addInt32(long val) {
-		mData[mPos + 3] = (byte)val;
-		val >>= 8;
-		mData[mPos + 2] = (byte)val;
-		val >>= 8;
-		mData[mPos + 1] = (byte)val;
-		val >>= 8;
-		mData[mPos + 0] = (byte)val;
-		val >>= 8;	
-		mPos += 4;
+	public boolean addInt32(long val) {
+		if (getRemainingFreeSpace() >= 4) {
+			mData[mPos + 3] = (byte)val;
+			val >>= 8;
+			mData[mPos + 2] = (byte)val;
+			val >>= 8;
+			mData[mPos + 1] = (byte)val;
+			val >>= 8;
+			mData[mPos + 0] = (byte)val;
+			val >>= 8;	
+			mPos += 4;
+			return true;
+		} else {
+			return false;
+		}		
 	}	
 	
 	
@@ -142,6 +163,10 @@ public class Packet {
 	
 	public boolean getRespond() {
 		return mRespond;
+	}
+	
+	public int getRemainingFreeSpace() {
+		return MAX_LENGTH - mPos;
 	}
 
 	public void print() {		
