@@ -19,6 +19,7 @@ public class InputStickError {
 	public static final int ERROR_BLUETOOTH_NO_REMOTE_DEVICE			= ERROR_BLUETOOTH | 0x06;
 	public static final int ERROR_BLUETOOTH_BT40_NOT_SUPPRTED			= ERROR_BLUETOOTH | 0x07;
 	public static final int ERROR_BLUETOOTH_BT40_NO_SPP_SERVICE			= ERROR_BLUETOOTH | 0x08;
+	public static final int ERROR_BLUETOOTH_NOT_ENABLED					= ERROR_BLUETOOTH | 0x09;
 			
 	//Hardware-related errors:
 	public static final int ERROR_HARDWARE								= 0x0200;	
@@ -72,6 +73,7 @@ public class InputStickError {
     	errorCodeMap.put(ERROR_BLUETOOTH_NO_REMOTE_DEVICE, 			"Can't find remote device");  
     	errorCodeMap.put(ERROR_BLUETOOTH_BT40_NOT_SUPPRTED, 		"BT 4.0 is not supported");
     	errorCodeMap.put(ERROR_BLUETOOTH_BT40_NO_SPP_SERVICE, 		"BT 4.0 RXTX not found");  
+    	errorCodeMap.put(ERROR_BLUETOOTH_NOT_ENABLED, 				"BT not enabled");  
     	
     	//Hardware
     	errorCodeMap.put(ERROR_HARDWARE, 							"Hardware");

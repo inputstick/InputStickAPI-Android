@@ -40,10 +40,12 @@ public class BTService {
     private boolean connected;
     
     private PacketReader mPacketReader;
-    private BTConnection mBTConnection;
+    private BTConnection mBTConnection;        
     
     private boolean turnBluetoothOn;
-    private boolean receiverRegistered;
+    private boolean receiverRegistered;    
+    
+    private Handler mDelayHandler = new Handler();
 	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -52,16 +54,16 @@ public class BTService {
 				final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
 				if ((state == BluetoothAdapter.STATE_ON)  && (turnBluetoothOn)) {					
 					turnBluetoothOn = false;
-					//wait 100ms after adapter is enabled, otherwise it may not connect properly
-					Handler handler = new Handler();
-					handler.postDelayed(new Runnable() {
+					//wait 250ms after adapter is enabled, otherwise it may not connect properly
+					mDelayHandler.removeCallbacksAndMessages(null);
+					mDelayHandler.postDelayed(new Runnable() {
 						@Override
 						public void run() {
 							doConnect(false);
 						}
-					}, 100);
+					}, 250);
 				}
-			}
+			}			
 		}
 	};
     
@@ -134,11 +136,9 @@ public class BTService {
 					
 					if (mBluetoothAdapter.isEnabled()) {	
 						doConnect(false);					
-					} else {					
-						//enableBluetooth(doNotAsk); :
+					} else {											
 				    	if (mApp != null) {
-					    	turnBluetoothOn = true;
-					    	
+					    	turnBluetoothOn = true;					    	
 					    	if ( !receiverRegistered) {
 					    		IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
 					    		mCtx.registerReceiver(mReceiver, filter);
@@ -151,6 +151,13 @@ public class BTService {
 						    	Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 						    	enableBtIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 						    	mApp.startActivity(enableBtIntent);
+						    	//if BT is not enabled before timeout, show error
+								mDelayHandler.postDelayed(new Runnable() {
+									@Override
+									public void run() {
+										event(BTService.EVENT_ERROR, InputStickError.ERROR_BLUETOOTH_NOT_ENABLED);	
+									}
+								}, mConnectTimeout - 500);
 					    	}
 				    	}
 					}
@@ -165,6 +172,10 @@ public class BTService {
     
     public synchronized void disconnect() {
     	Util.log(Util.FLAG_LOG_BT_SERVICE, "disconnect");
+    	
+    	mDelayHandler.removeCallbacksAndMessages(null);
+    	removeReceiver();
+    	
         disconnecting = true;
         if (mBTConnection != null) { 
         	mBTConnection.disconnect();
@@ -183,7 +194,9 @@ public class BTService {
 
     
     protected synchronized void connectionEstablished() {
-    	removeReceiver(); //TODO    	
+    	mDelayHandler.removeCallbacksAndMessages(null);
+    	removeReceiver(); 
+
     	mPacketReader = new PacketReader(this, mHandler);    	
         timeout = 0;
         connected = true;       		
@@ -192,7 +205,9 @@ public class BTService {
     
     
     protected void connectionFailed(boolean canRetry, int errorCode) {    	
-    	removeReceiver(); //TODO
+    	mDelayHandler.removeCallbacksAndMessages(null);
+    	removeReceiver(); 
+    	
     	connected = false;
     	if (disconnecting) {
     		disconnecting = false;
