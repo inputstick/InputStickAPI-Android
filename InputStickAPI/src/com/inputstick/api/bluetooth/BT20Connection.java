@@ -100,7 +100,7 @@ public class BT20Connection extends BTConnection {
 
             try {
                 mmSocket.connect();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 try {
                     mmSocket.close();
                 } catch (IOException e2) {
