@@ -51,8 +51,15 @@ public class BTService {
 			if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
 				final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
 				if ((state == BluetoothAdapter.STATE_ON)  && (turnBluetoothOn)) {					
-					turnBluetoothOn = false;					
-					doConnect(false);
+					turnBluetoothOn = false;
+					//wait 100ms after adapter is enabled, otherwise it may not connect properly
+					Handler handler = new Handler();
+					handler.postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							doConnect(false);
+						}
+					}, 100);
 				}
 			}
 		}
