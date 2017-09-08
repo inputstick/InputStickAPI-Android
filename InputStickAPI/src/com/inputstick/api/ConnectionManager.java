@@ -10,12 +10,19 @@ public abstract class ConnectionManager {
 	public static final int STATE_CONNECTED = 3;
 	public static final int STATE_READY = 4;
 	
+	public static final int DISC_REASON_UNKNOWN = 				0x00;		//not specified, most likely an old version of InputStickUtility app is installed
+	public static final int DISC_REASON_ERROR = 				0x01;		//disconnected due to an error
+	public static final int DISC_REASON_APP_DISCONNECTED = 		0x10;		//disconnect was requested by the application
+	public static final int DISC_REASON_UTILITY_DISCONNECTED = 	0x21;		//disconnect was requested by user using InputStickUtility app UI
+	public static final int DISC_REASON_UTILITY_CANCELLED = 	0x22;		//connection attempt was cancelled by user using InputStickUtility app UI
+	public static final int DISC_REASON_UTILITY_FORCED = 		0x23;		//connection was terminated because InputStickUtility requested exclusive access to the device (configuration, firmware update etc.)
 	
 	protected Vector<InputStickStateListener> mStateListeners = new Vector<InputStickStateListener>();
 	protected Vector<InputStickDataListener> mDataListeners = new Vector<InputStickDataListener>();
 	
 	protected int mState;
-	protected int mErrorCode;	
+	private int mErrorCode;
+	private int mDisconnectReasonCode;	
 	
 	public abstract void connect();
 	public abstract void disconnect();
@@ -57,8 +64,26 @@ public abstract class ConnectionManager {
 		}
 	}
 	
+	protected void resetErrorCode() {
+		mErrorCode = InputStickError.ERROR_NONE;
+		setDisconnectReason(DISC_REASON_UNKNOWN);
+	}
+	
+	protected void setErrorCode(int code) {
+		setDisconnectReason(DISC_REASON_ERROR);
+		mErrorCode = code;
+	}
+	
 	public int getErrorCode() {
 		return mErrorCode;
+	}	
+	
+	protected void setDisconnectReason(int code) {
+		mDisconnectReasonCode = code;
+	}
+	
+	public int getDisconnectReason() {
+		return mDisconnectReasonCode;
 	}	
 	
 	protected void onData(byte[] data) {

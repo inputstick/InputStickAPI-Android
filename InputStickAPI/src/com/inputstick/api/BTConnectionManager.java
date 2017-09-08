@@ -36,21 +36,23 @@ public class BTConnectionManager extends ConnectionManager implements InitManage
 		@Override
 		public void handleMessage(Message msg) {
 			BTConnectionManager manager = ref.get();
-			switch (msg.what) {
-				case BTService.EVENT_DATA:
-					manager.onData((byte[])msg.obj);
-					break;			
-				case BTService.EVENT_CONNECTED:
-					manager.onConnected();
-					break;
-				case BTService.EVENT_CANCELLED:
-					manager.onDisconnected();
-					break;														
-				case BTService.EVENT_ERROR:					
-					manager.onFailure(msg.arg1); 
-					break;
-				default:
-					manager.onFailure(InputStickError.ERROR_BLUETOOTH); 
+			if (manager != null) {
+				switch (msg.what) {
+					case BTService.EVENT_DATA:
+						manager.onData((byte[])msg.obj);
+						break;			
+					case BTService.EVENT_CONNECTED:
+						manager.onConnected();
+						break;
+					case BTService.EVENT_CANCELLED:
+						manager.onDisconnected();
+						break;														
+					case BTService.EVENT_ERROR:					
+						manager.onFailure(msg.arg1); 
+						break;
+					default:
+						manager.onFailure(InputStickError.ERROR_BLUETOOTH); 
+				}
 			}
 		}
     } 		
@@ -70,7 +72,7 @@ public class BTConnectionManager extends ConnectionManager implements InitManage
 	}
 	
 	private void onFailure(int code) {
-		mErrorCode = code;
+		setErrorCode(code);		
 		stateNotify(ConnectionManager.STATE_FAILURE);		
 		disconnect();
 	}
@@ -106,7 +108,7 @@ public class BTConnectionManager extends ConnectionManager implements InitManage
 	}
 
 	public void connect(boolean reflection, int timeout, boolean doNotAsk) {
-		mErrorCode = InputStickError.ERROR_NONE;
+		resetErrorCode();
 		if (mBTService == null) {
 			mBTService = new BTService(mApp, mBTHandler);
 			mPacketManager = new PacketManager(mBTService, mKey);

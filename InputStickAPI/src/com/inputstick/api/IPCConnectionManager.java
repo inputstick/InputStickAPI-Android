@@ -52,10 +52,17 @@ public class IPCConnectionManager extends ConnectionManager {
 		            	}             	
 		    			break;
 		    		case SERVICE_CMD_STATE:
+		    			boolean forceUpdate = false;
 		    			if (msg.arg1 == ConnectionManager.STATE_FAILURE) {
-		    				manager.mErrorCode = msg.arg2;
+		    				manager.setErrorCode(msg.arg2);
+		    				forceUpdate = true;
+		    			} else if (msg.arg1 == ConnectionManager.STATE_DISCONNECTED) {
+		    				if (msg.arg2 > 0) {
+		    					manager.setDisconnectReason(msg.arg2);
+		    					forceUpdate = true;
+		    				}
 		    			}
-		    			manager.stateNotify(msg.arg1);
+		    			manager.stateNotify(msg.arg1, forceUpdate);
 		    			break;             	
 	        	}  
         	}
@@ -73,7 +80,7 @@ public class IPCConnectionManager extends ConnectionManager {
             // unexpectedly disconnected from service
             mService = null;
             mBound = false;
-            mErrorCode = InputStickError.ERROR_ANDROID_SERVICE_DISCONNECTED;
+            setErrorCode(InputStickError.ERROR_ANDROID_SERVICE_DISCONNECTED);
 			stateNotify(STATE_FAILURE);
             stateNotify(STATE_DISCONNECTED);
         }
@@ -134,8 +141,8 @@ public class IPCConnectionManager extends ConnectionManager {
 			exists = false;
 		}		
 		
+		resetErrorCode();
 		if (exists) {
-			mErrorCode = InputStickError.ERROR_NONE;
 			Intent intent = new Intent();									
 			intent.setComponent(new ComponentName("com.inputstick.apps.inputstickutility","com.inputstick.apps.inputstickutility.service.InputStickService"));
 			intent.putExtra("TIME", System.currentTimeMillis());
@@ -146,7 +153,7 @@ public class IPCConnectionManager extends ConnectionManager {
 	        	sendConnectMessage();
 	        } 
 		} else {
-			mErrorCode = InputStickError.ERROR_ANDROID_NO_UTILITY_APP;
+			setErrorCode(InputStickError.ERROR_ANDROID_NO_UTILITY_APP);
 			stateNotify(STATE_FAILURE);
 			stateNotify(STATE_DISCONNECTED);
 		}

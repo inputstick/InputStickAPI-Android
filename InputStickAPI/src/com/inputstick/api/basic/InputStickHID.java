@@ -240,6 +240,20 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 		} 
 	}
 	
+	
+	/*
+	 * Returns reason code for last disconnect event. See ConnectionManager for list of disconnect reason codes 
+	 * 
+	 * @return last disconnect reason code
+	 */
+	public static int getDisconnectReason() {
+		if (mConnectionManager != null) {
+			return mConnectionManager.getDisconnectReason();
+		} else {
+			return ConnectionManager.DISC_REASON_UNKNOWN;
+		} 
+	}	
+	
 
 	/*
 	 * Checks if Bluetooth connection between Android device and InputStick is established.
