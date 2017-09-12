@@ -137,7 +137,8 @@ public class IPCConnectionManager extends ConnectionManager {
 		boolean exists = true;
 		try {
 			pm.getPackageInfo("com.inputstick.apps.inputstickutility", PackageManager.GET_META_DATA);
-		} catch (NameNotFoundException e) {
+		} catch (Exception e) {
+			//NameNotFoundException, can also throw SecurityException on some devices!
 			exists = false;
 		}		
 		
