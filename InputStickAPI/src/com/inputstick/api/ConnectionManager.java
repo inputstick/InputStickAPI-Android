@@ -70,7 +70,9 @@ public abstract class ConnectionManager {
 	}
 	
 	protected void setErrorCode(int code) {
-		setDisconnectReason(DISC_REASON_ERROR);
+		if (code != InputStickError.ERROR_NONE) {
+			setDisconnectReason(DISC_REASON_ERROR);
+		}
 		mErrorCode = code;
 	}
 	
