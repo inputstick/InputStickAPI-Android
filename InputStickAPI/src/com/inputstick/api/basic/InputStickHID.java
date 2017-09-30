@@ -292,7 +292,9 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	public static void addStateListener(InputStickStateListener listener) {
 		if (listener != null) {
 			if ( !mStateListeners.contains(listener)) {
-				mStateListeners.add(listener);
+				synchronized (mStateListeners) {
+					mStateListeners.add(listener);
+				}
 			}
 		}
 	}
@@ -305,7 +307,9 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	 */	
 	public static void removeStateListener(InputStickStateListener listener) {
 		if (listener != null) {
-			mStateListeners.remove(listener);
+			synchronized (mStateListeners) {
+				mStateListeners.remove(listener);
+			}
 		}
 	}
 
@@ -603,9 +607,11 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 			updateQueueTimer.cancel();
 			updateQueueTimer = null;
 		}
-		for (InputStickStateListener listener : mStateListeners) {
-			listener.onStateChanged(state);
-		}		
+		synchronized (mStateListeners) {
+			for (InputStickStateListener listener : mStateListeners) {
+				listener.onStateChanged(state);
+			}		
+		}
 	}
 
 	@Override
