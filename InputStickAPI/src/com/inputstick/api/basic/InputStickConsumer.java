@@ -88,4 +88,57 @@ public class InputStickConsumer {
 		InputStickHID.addConsumerTransaction(t);		
 	}
 
+
+	/*
+	 * Returns name of action 
+	 * 
+	 * @param action	code of consumer control action
+	 */
+	public static String actionToString(int action) {
+		switch (action) {
+			case VOL_UP:
+				return "Volume up";	
+			case VOL_DOWN:
+				return "Volume down";
+			case VOL_MUTE:
+				return "Mute";		
+			case TRACK_NEXT:
+				return "Next track";		
+			case TRACK_PREV:
+				return "Previous track";		
+			case STOP:
+				return "Stop";		
+			case PLAY_PAUSE:
+				return "Play/Pause";		
+				
+			case LAUNCH_BROWSER:
+				return "Launch web browser";		
+			case LAUNCH_EMAIL:
+				return "Launch email client";		
+			case LAUNCH_CALC:
+				return "Launch calculator";		
+				
+			case HOME:
+				return "Home";		
+			case BACK:
+				return "Back";		
+			case FORWARD:
+				return "Forward";		
+			case REFRESH:
+				return "Refresh";		
+			case SEARCH:
+				return "Search";		
+				
+			case SYSTEM_POWER_DOWN:
+				return "Power down";		
+			case SYSTEM_SLEEP:
+				return "Sleep";		
+			case SYSTEM_WAKEUP:
+				return "Wake up";		
+				
+			default:
+				return String.valueOf(action);					
+		}
+	
+	}
 }
