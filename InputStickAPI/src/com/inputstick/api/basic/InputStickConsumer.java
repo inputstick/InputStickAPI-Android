@@ -90,9 +90,9 @@ public class InputStickConsumer {
 
 
 	/*
-	 * Returns name of action 
+	 * Returns human-readable description for action 
 	 * 
-	 * @param action	code of consumer control action
+	 * @param action	code of consumer control action (HID usage ID)
 	 */
 	public static String actionToString(int action) {
 		switch (action) {
@@ -101,7 +101,7 @@ public class InputStickConsumer {
 			case VOL_DOWN:
 				return "Volume down";
 			case VOL_MUTE:
-				return "Mute";		
+				return "Mute/Unmute";		
 			case TRACK_NEXT:
 				return "Next track";		
 			case TRACK_PREV:
@@ -119,9 +119,9 @@ public class InputStickConsumer {
 				return "Launch calculator";		
 				
 			case HOME:
-				return "Home";		
+				return "Home button";		
 			case BACK:
-				return "Back";		
+				return "Back button";		
 			case FORWARD:
 				return "Forward";		
 			case REFRESH:
