@@ -135,6 +135,15 @@ public class BTConnectionManager extends ConnectionManager implements InitManage
 		onFailure(failureCode);
 	}
 	
+	public String getMac() {
+		return mMac;
+	}
+	
+	public void changeKey(byte[] key) {
+		mKey = key;
+		mPacketManager.changeKey(mKey);
+	}
+	
 
 	@Override
 	public void sendPacket(Packet p) {
