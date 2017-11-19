@@ -15,7 +15,7 @@ public class PacketManager {
 	
 	private final BTService mBTService;
 	private final AES mAes;
-	private final byte[] mKey;
+	private byte[] mKey;
 	private byte[] cmpData;
 	private final CRC32 mCrc;	
 	private boolean mEncryption;
@@ -41,6 +41,10 @@ public class PacketManager {
 	
 	public boolean isEncrypted() {
 		return mEncryption;
+	}
+	
+	public void changeKey(byte[] key){
+		mKey = key;
 	}
 	
 	public Packet encPacket(boolean enable) {
