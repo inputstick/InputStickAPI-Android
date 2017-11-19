@@ -488,9 +488,6 @@ public abstract class KeyboardLayout {
 	
 
 
-	
-	//TODO ogarnij komenty!!!!!!! wszedzie!!!
-	
 	/*
 	 * Returns array with layout names sorted by English names of layouts 
 	 * 
@@ -530,7 +527,10 @@ public abstract class KeyboardLayout {
 
 	
 	
-	
+	/*
+	 * Returns description (locale, name in native language and English, keyboard layout variant) of all supported keyboard layouts
+	 * 	 
+	 */		
 	
 	private static ArrayList<LayoutInfo> getLayoutInfoSortedByLayoutName() {
 		ArrayList<LayoutInfo> result = new ArrayList<LayoutInfo>();
