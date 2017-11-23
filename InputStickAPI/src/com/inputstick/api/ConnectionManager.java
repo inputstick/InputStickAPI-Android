@@ -1,5 +1,6 @@
 package com.inputstick.api;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 public abstract class ConnectionManager {
@@ -38,8 +39,14 @@ public abstract class ConnectionManager {
 		} else {
 			//notify all listeners
 			mState = state;
-			for (InputStickStateListener listener : mStateListeners) {
-				listener.onStateChanged(state);
+			synchronized(mStateListeners) {
+				ArrayList<InputStickStateListener> tmp = new ArrayList<InputStickStateListener>();
+				for (InputStickStateListener listener : mStateListeners) {
+					tmp.add(listener);
+				}
+				for (InputStickStateListener listener : tmp) {
+					listener.onStateChanged(state);
+				}
 			}
 		}
 	}  
@@ -89,36 +96,50 @@ public abstract class ConnectionManager {
 	}	
 	
 	protected void onData(byte[] data) {
-		for (InputStickDataListener listener : mDataListeners) {
-			listener.onInputStickData(data);
-		} 
+		synchronized(mDataListeners) {
+			ArrayList<InputStickDataListener> tmp = new ArrayList<InputStickDataListener>();
+			for (InputStickDataListener listener : mDataListeners) {
+				tmp.add(listener);
+			}
+			for (InputStickDataListener listener : tmp) {
+				listener.onInputStickData(data);
+			} 
+		}
 	}
 	
 	public void addStateListener(InputStickStateListener listener) {
 		if (listener != null) {
-			if ( !mStateListeners.contains(listener)) {
-				mStateListeners.add(listener);
+			synchronized(mStateListeners) {
+				if ( !mStateListeners.contains(listener)) {
+					mStateListeners.add(listener);
+				}
 			}
 		}	
 	}
 	
 	public void removeStateListener(InputStickStateListener listener) {
 		if (listener != null) {
-			mStateListeners.remove(listener);
+			synchronized(mStateListeners) {
+				mStateListeners.remove(listener);
+			}
 		}	
 	}
 	
 	public void addDataListener(InputStickDataListener listener) {
 		if (listener != null) {
-			if ( !mDataListeners.contains(listener)) {
-				mDataListeners.add(listener);
+			synchronized(mDataListeners) {
+				if ( !mDataListeners.contains(listener)) {
+					mDataListeners.add(listener);
+				}
 			}
 		}				
 	}
 	
 	public void removeDataListener(InputStickDataListener listener) {
 		if (listener != null) {
-			mDataListeners.remove(listener);
+			synchronized(mDataListeners) {
+				mDataListeners.remove(listener);
+			}
 		}			
 	}
 
