@@ -3,11 +3,9 @@ package com.inputstick.api.hid;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 
 import com.inputstick.api.ConnectionManager;
 import com.inputstick.api.HIDInfo;
-import com.inputstick.api.OnEmptyBufferListener;
 import com.inputstick.api.Packet;
 import com.inputstick.api.basic.InputStickHID;
 
@@ -163,17 +161,11 @@ public class HIDTransactionQueue {
 	}
 	
 	private void notifyOnRemoteBufferEmpty() {
-		Vector<OnEmptyBufferListener> listeners = InputStickHID.getBufferEmptyListeners();
-		for (OnEmptyBufferListener listener : listeners) {
-			listener.onRemoteBufferEmpty(mInterfaceType);
-		}
+		InputStickHID.sendEmptyBufferNotifications(1, mInterfaceType);
 	}
 	
 	private void notifyOnLocalBufferEmpty() {
-		Vector<OnEmptyBufferListener> listeners = InputStickHID.getBufferEmptyListeners();
-		for (OnEmptyBufferListener listener : listeners) {
-			listener.onLocalBufferEmpty(mInterfaceType);
-		}
+		InputStickHID.sendEmptyBufferNotifications(2, mInterfaceType);
 	}
 	
 	public synchronized boolean isLocalBufferEmpty() {
