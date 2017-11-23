@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -16,8 +15,6 @@ import android.os.Message;
 import android.os.Messenger;
 
 public class IPCConnectionManager extends ConnectionManager {
-	
-	//private static final String mTag = "IPCConnectionManager";
 	
 	public static final int SERVICE_CMD_CONNECT = 1;
 	public static final int SERVICE_CMD_DISCONNECT = 2;
@@ -85,10 +82,8 @@ public class IPCConnectionManager extends ConnectionManager {
             stateNotify(STATE_DISCONNECTED);
         }
     };  
-    //SERVICE=========================================================            
 
-	
-	
+    
 	
 	
 	private void sendConnectMessage() {
