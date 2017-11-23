@@ -1,5 +1,6 @@
 package com.inputstick.api.basic;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -321,8 +322,10 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	 */
 	public static void addBufferEmptyListener(OnEmptyBufferListener listener) {
 		if (listener != null) {
-			if ( !mBufferEmptyListeners.contains(listener)) {
-				mBufferEmptyListeners.add(listener);
+			synchronized(mBufferEmptyListeners) {
+				if ( !mBufferEmptyListeners.contains(listener)) {
+					mBufferEmptyListeners.add(listener);
+				}
 			}
 		}
 	}
@@ -335,18 +338,29 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	 */	
 	public static void removeBufferEmptyListener(OnEmptyBufferListener listener) {
 		if (listener != null) {
-			mBufferEmptyListeners.remove(listener);
+			synchronized(mBufferEmptyListeners) {
+				mBufferEmptyListeners.remove(listener);
+			}
 		}		
 	}
 	
 	
-	/*
-	 * Returns vector with registered OnEmptyBuffer listeners.
-	 * 
-	 * @return vector with OnEmptyBuffer listeners 
-	 */
-	public static Vector<OnEmptyBufferListener> getBufferEmptyListeners() {
-		return mBufferEmptyListeners;
+
+	
+	public static void sendEmptyBufferNotifications(int bufferType, int interfaceType) {		
+		if (bufferType == 1) { //remote buffer
+			synchronized(mBufferEmptyListeners) {
+				for (OnEmptyBufferListener listener : mBufferEmptyListeners) {
+					listener.onRemoteBufferEmpty(interfaceType);
+				}			
+			}
+		} else if (bufferType == 2) { //local buffer
+			synchronized(mBufferEmptyListeners) {
+				for (OnEmptyBufferListener listener : mBufferEmptyListeners) {
+					listener.onLocalBufferEmpty(interfaceType);
+				}			
+			}
+		}		
 	}
 	
 
@@ -608,9 +622,14 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 			updateQueueTimer = null;
 		}
 		synchronized (mStateListeners) {
+			ArrayList<InputStickStateListener> tmp = new ArrayList<InputStickStateListener>();
 			for (InputStickStateListener listener : mStateListeners) {
+				tmp.add(listener);
+			}
+			
+			for (InputStickStateListener listener : tmp) {
 				listener.onStateChanged(state);
-			}		
+			}
 		}
 	}
 
