@@ -7,6 +7,7 @@ import com.inputstick.api.layout.KeyboardLayout;
 public class RemotePreferences {	
 	
 	protected KeyboardLayout layout;	
+	protected int typingSpeed;
 	protected boolean showModifiers;
 	
 	protected boolean showMouse;
@@ -27,6 +28,17 @@ public class RemotePreferences {
 		//keyboard
 		layout = KeyboardLayout.getLayout(sharedPref.getString("inputstick_keyboard_layout", "en-US"));
 		showModifiers = true;
+		try {
+			typingSpeed = Integer.parseInt(sharedPref.getString("inputstick_typing_speed", "1"));
+			if ((typingSpeed < 0) && (typingSpeed > 100)) {
+				typingSpeed = 1;
+			}
+		} catch (Exception e) {
+			typingSpeed = 1;
+		}		
+		
+		
+		
 		//mouse
 		showMouse = true;
 		touchScreenMode = sharedPref.getString("inputstick_mousepad_mode", "mouse").equals("touchscreen");
@@ -57,6 +69,10 @@ public class RemotePreferences {
 	
 	public boolean showModifiersArea() {
 		return showModifiers;
+	}
+	
+	public int getTypingSpeed() {
+		return typingSpeed;
 	}
 	
 	

@@ -28,13 +28,13 @@ public class RemoteSupport {
 		usedKeyboard = true;
 	}
 	
-	public void pressAndRelease(byte modifiers, byte key) {
-		InputStickKeyboard.pressAndRelease(modifiers, key);
+	public void pressAndRelease(byte modifiers, byte key) {		
+		InputStickKeyboard.pressAndRelease(modifiers, key, mPreferences.getTypingSpeed());
 		usedKeyboard = true;
 	}
 	
 	public void type(String text, byte modifiers) {
-		mPreferences.getKeyboardLayout().type(text, modifiers);
+		mPreferences.getKeyboardLayout().type(text, modifiers, mPreferences.getTypingSpeed());
 		usedKeyboard = true;
 	}
 
