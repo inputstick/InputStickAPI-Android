@@ -9,9 +9,9 @@ import android.view.View;
 
 public class MouseScrollView extends View {
 	
-	private int mWidth, mHeight;
-	private Paint mPaint;
-	private int x1,x2;
+	protected int mWidth, mHeight;
+	protected Paint mPaint;
+	protected int x1,x2;
 		 
     public MouseScrollView(Context context) {
         super(context);

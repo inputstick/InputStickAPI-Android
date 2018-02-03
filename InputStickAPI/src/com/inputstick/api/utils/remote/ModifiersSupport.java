@@ -13,17 +13,17 @@ import com.inputstick.api.hid.HIDKeycodes;
 
 public class ModifiersSupport {
 	
-	private RemoteSupport mRemote;
+	protected RemoteSupport mRemote;
 	
-	private ViewGroup layoutMain;
-	private ToggleButton toggleButtonCtrl;
-	private ToggleButton toggleButtonShift;
-	private ToggleButton toggleButtonAlt;
-	private ToggleButton toggleButtonGui;
-	private ToggleButton toggleButtonAltGr;
-	private Button buttonContext;	
+	protected ViewGroup layoutMain;
+	protected ToggleButton toggleButtonCtrl;
+	protected ToggleButton toggleButtonShift;
+	protected ToggleButton toggleButtonAlt;
+	protected ToggleButton toggleButtonGui;
+	protected ToggleButton toggleButtonAltGr;
+	protected Button buttonContext;	
 	
-	private boolean isResetting;	
+	protected boolean isResetting;	
 	
 	public ModifiersSupport(RemoteSupport remote, ViewGroup layout, ToggleButton ctrl, ToggleButton shift, ToggleButton alt, ToggleButton gui, ToggleButton altGr, Button context) {
 		mRemote = remote;

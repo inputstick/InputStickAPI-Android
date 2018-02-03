@@ -6,13 +6,13 @@ import com.inputstick.api.basic.InputStickTouchScreen;
 
 public class RemoteSupport {
 	
-	private RemotePreferences mPreferences;
+	protected RemotePreferences mPreferences;
 	
-	private boolean usedKeyboard;
-	private boolean usedMouse;
-	private boolean usedTouchscreen;
+	protected boolean usedKeyboard;
+	protected boolean usedMouse;
+	protected boolean usedTouchscreen;
 	
-	private int lastX, lastY;
+	protected int lastX, lastY;
 	
 	public RemoteSupport(RemotePreferences preferences) {
 		mPreferences = preferences;

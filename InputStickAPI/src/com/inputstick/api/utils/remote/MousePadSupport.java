@@ -12,50 +12,50 @@ import com.inputstick.api.ConnectionManager;
 import com.inputstick.api.basic.InputStickMouse;
 
 public class MousePadSupport {
-	
-	private MouseButtonOnTouchListener mMouseButtonOnTouchListener;
-	private MouseOnTouchListener mMouseOnTouchListener;
 			
 	//time values are in [ms]
-	private static final int OUT_OF_RANGE_TIMEOUT = 5000; //inactivity time after which finger is considered off the screen in touch-screen mode
-	private static final int MOUSE_REFRESH_INTERVAL = 10; //refresh mouse position no more frequent than this interval
-	private static final int SCROLL_REFRESH_INTERVAL = 10; //refresh scroll position no more frequent than this interval
-	private static final int IDLE_RESET_INTERVAL = 100; //time after which to reset lastX, lastY to current touch position
-	private static final int TAP_MIN_INTERVAL = 20; //max click rate
-	private static final int DEADZONE_TIMEOUT_PERIOD = 500;
-	private static final int MIN_PROXIMITY = 225; //15px (squared)
-	private static final float MOUSEPAD_RESCALE_FACTOR = 1.2f; //virtually re-scale mousepad are for touchscreen mode (active area is smaller than mousepad area)
+	protected static final int OUT_OF_RANGE_TIMEOUT = 5000; //inactivity time after which finger is considered off the screen in touch-screen mode
+	protected static final int MOUSE_REFRESH_INTERVAL = 10; //refresh mouse position no more frequent than this interval
+	protected static final int SCROLL_REFRESH_INTERVAL = 10; //refresh scroll position no more frequent than this interval
+	protected static final int IDLE_RESET_INTERVAL = 100; //time after which to reset lastX, lastY to current touch position
+	protected static final int TAP_MIN_INTERVAL = 20; //max click rate
+	protected static final int DEADZONE_TIMEOUT_PERIOD = 500;
+	protected static final int MIN_PROXIMITY = 225; //15px (squared)
+	protected static final float MOUSEPAD_RESCALE_FACTOR = 1.2f; //virtually re-scale mousepad are for touchscreen mode (active area is smaller than mousepad area)
 	//re-scaling makes it easier to navigate UI elements close to screen edges - like Windows "start" button
 	
-	private RemoteSupport mRemote;
-	private RemotePreferences mRemotePreferences;
+	protected MouseButtonOnTouchListener mMouseButtonOnTouchListener;
+	protected MouseOnTouchListener mMouseOnTouchListener;
+	
+	protected RemoteSupport mRemote;
+	protected RemotePreferences mRemotePreferences;
 			
-	private ViewGroup layoutMain;
-	private MousePadView mousePad;
-	private View buttonMouseL, buttonMouseM, buttonMouseR;	
-	private MouseScrollView mouseScroll;	
+	protected ViewGroup layoutMain;
+	protected MousePadView mousePad;
+	protected View buttonMouseL, buttonMouseM, buttonMouseR;	
+	protected MouseScrollView mouseScroll;	
 	
 	
-	private int lastX, lastY; //last x,y position of mousepad touch event
-	private long lastMoveTime; //when last mousepad touch event was processed
-	private long lastHIDUpdateTime; //when last HID report was sent
+	protected int lastX, lastY; //last x,y position of mousepad touch event
+	protected long lastMoveTime; //when last mousepad touch event was processed
+	protected long lastHIDUpdateTime; //when last HID report was sent
 	
-	private int lastScroll; //last y position of scroll touch event
-	private long lastTimeScrollTime;	
+	protected int lastScroll; //last y position of scroll touch event
+	protected long lastTimeScrollTime;	
 		
-	private long lastTapTime; 
-	private int lastTapX, lastTapY;		
+	protected long lastTapTime; 
+	protected int lastTapX, lastTapY;		
 		
-	private boolean tapState; //if true - next touch event should be treated as click action
-	private boolean lmb; //is left mouse button pressed? (by holding finger on mousepad, NOT by pressing button below)
-	private boolean buttonStateLeft, buttonStateMiddle, buttonStateRight;		
+	protected boolean tapState; //if true - next touch event should be treated as click action
+	protected boolean lmb; //is left mouse button pressed? (by holding finger on mousepad, NOT by pressing button below)
+	protected boolean buttonStateLeft, buttonStateMiddle, buttonStateRight;		
 	
 	//touchscreen mode
-	private int touchX, touchY; //x,y of last touch-screen HID report
-	private boolean deadZone; //is currently in dead-zone?
-	private int deadZoneX, deadZoneY; //dead-zone center coordinates
-	private long deadZoneTimeout;
-	private Timer outOfRangeTimer;	
+	protected int touchX, touchY; //x,y of last touch-screen HID report
+	protected boolean deadZone; //is currently in dead-zone?
+	protected int deadZoneX, deadZoneY; //dead-zone center coordinates
+	protected long deadZoneTimeout;
+	protected Timer outOfRangeTimer;	
 	
 	
 	
@@ -89,7 +89,7 @@ public class MousePadSupport {
 	}
 
 	
-	private void cancelOutOfRangeTimer() {
+	protected void cancelOutOfRangeTimer() {
 		if (outOfRangeTimer != null) {
 			outOfRangeTimer.cancel();
 			outOfRangeTimer = null;				
@@ -131,7 +131,7 @@ public class MousePadSupport {
 
 	
 	
-	private int getProximity() {
+	protected int getProximity() {
 		int tmp = mRemotePreferences.getTouchProximity();
 	    if (tmp == 0) {
 	    	int h = mousePad.getHeight();
@@ -145,14 +145,14 @@ public class MousePadSupport {
 		return tmp;
 	}
 	
-	private boolean checkProximity(int x, int y) {
+	protected boolean checkProximity(int x, int y) {
 		int d;
 		d = (lastTapX - x) * (lastTapX - x);
 		d += (lastTapY - y) * (lastTapY - y);
 		return (d < getProximity());
 	}
 	
-	private boolean isOutOfDeadZone(int x, int y) {
+	protected boolean isOutOfDeadZone(int x, int y) {
 		int d;
 		d = (deadZoneX - x) * (deadZoneX - x);
 		d += (deadZoneY - y) * (deadZoneY - y);

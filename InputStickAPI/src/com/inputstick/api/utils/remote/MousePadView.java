@@ -12,12 +12,12 @@ import android.view.View;
 
 public class MousePadView extends View {
 	
-	private int mWidth, mHeight;
-	private RectF mRect;
-	private Paint mPaint;
+	protected int mWidth, mHeight;
+	protected RectF mRect;
+	protected Paint mPaint;
 	
-    private ViewAspectRatioMeasurer mVarm = new ViewAspectRatioMeasurer();
-    private float mRatio; //aspect ratio to be respected by the measurer    
+	protected ViewAspectRatioMeasurer mVarm = new ViewAspectRatioMeasurer();
+	protected float mRatio; //aspect ratio to be respected by the measurer    
 	 
     public MousePadView(Context context) {
         super(context);

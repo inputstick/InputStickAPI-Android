@@ -145,7 +145,7 @@ public class KeyboardSupport {
 	}
 
 
-	private RemoteSupport mRemote;
+	protected RemoteSupport mRemote;
 	
 	public KeyboardSupport(RemoteSupport remote) {
 		mRemote = remote;

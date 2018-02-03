@@ -6,17 +6,17 @@ import com.inputstick.api.layout.KeyboardLayout;
 
 public class RemotePreferences {	
 	
-	private KeyboardLayout layout;	
-	private boolean showModifiers;
+	protected KeyboardLayout layout;	
+	protected boolean showModifiers;
 	
-	private boolean showMouse;
-	private boolean touchScreenMode;
-	private float ratio;
-	private boolean tapToClick;
-	private int mouseSensitivity;	
-	private int scrollSensitivity;
-	private int proximityThreshold;	
-	private int tapInterval;
+	protected boolean showMouse;
+	protected boolean touchScreenMode;
+	protected float ratio;
+	protected boolean tapToClick;
+	protected int mouseSensitivity;	
+	protected int scrollSensitivity;
+	protected int proximityThreshold;	
+	protected int tapInterval;
 	
 	
 	public RemotePreferences() {		
