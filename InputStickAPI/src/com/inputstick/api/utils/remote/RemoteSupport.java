@@ -6,36 +6,45 @@ import com.inputstick.api.basic.InputStickTouchScreen;
 
 public class RemoteSupport {
 	
-	protected RemotePreferences mPreferences;
+	protected RemotePreferences preferences;
 	
 	protected boolean usedKeyboard;
 	protected boolean usedMouse;
 	protected boolean usedTouchscreen;
 	
 	protected int lastX, lastY;
+	protected long lastActionTime;
 	
 	public RemoteSupport(RemotePreferences preferences) {
-		mPreferences = preferences;
+		this.preferences = preferences;
+		lastActionTime = 0;
 	}
 	
 	public RemotePreferences getPreferences() {
-		return mPreferences;
+		return preferences;
+	}
+	
+	public long getLastActionTime() {
+		return lastActionTime;
 	}
 	
 	//KEYBOARD:
 	public void keyboardReport(byte modifiers, byte key0, byte key1, byte key2, byte key3, byte key4, byte key5) {
 		InputStickKeyboard.customReport(modifiers, key0, key1, key2, key3, key4, key5);
 		usedKeyboard = true;
+		lastActionTime = System.currentTimeMillis();
 	}
 	
 	public void pressAndRelease(byte modifiers, byte key) {		
-		InputStickKeyboard.pressAndRelease(modifiers, key, mPreferences.getTypingSpeed());
+		InputStickKeyboard.pressAndRelease(modifiers, key, preferences.getTypingSpeed());
 		usedKeyboard = true;
+		lastActionTime = System.currentTimeMillis();
 	}
 	
 	public void type(String text, byte modifiers) {
-		mPreferences.getKeyboardLayout().type(text, modifiers, mPreferences.getTypingSpeed());
+		preferences.getKeyboardLayout().type(text, modifiers, preferences.getTypingSpeed());
 		usedKeyboard = true;
+		lastActionTime = System.currentTimeMillis();
 	}
 
 	
@@ -43,11 +52,13 @@ public class RemoteSupport {
 	public void mouseReport(byte buttons, byte x, byte y, byte wheel) {
 		InputStickMouse.customReport(buttons, x, y, wheel);
 		usedMouse = true;
+		lastActionTime = System.currentTimeMillis();
 	}
 	
 	public void mouseClick(byte button, int n) {
 		InputStickMouse.click(button, n);
 		usedMouse = true;
+		lastActionTime = System.currentTimeMillis();
 	}
 	
 	
@@ -57,6 +68,7 @@ public class RemoteSupport {
 		lastX = x;
 		lastY = y;
 		usedTouchscreen = true;
+		lastActionTime = System.currentTimeMillis();
 	}
 	
 	//use last known position
@@ -88,6 +100,7 @@ public class RemoteSupport {
 			InputStickTouchScreen.goOutOfRange(lastX, lastY);
 			usedTouchscreen = false;
 		}
+		lastActionTime = 0;
 	}	
 	
 }
