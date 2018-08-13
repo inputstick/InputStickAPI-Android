@@ -9,7 +9,6 @@ public class CzechLayoutAlt extends KeyboardLayout {
 	
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}
 	//cs-CZ
-	//(like fr-FR!!!) ^ is duplicated as deadkey!
 	private static final int[][] FAST_LUT = {
 		{    0,	    0,	    0,	    0,	    0	},	// empty
 		{    9,	    0,	   43,	    0,	    0	},	// tab
