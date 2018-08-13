@@ -5,7 +5,7 @@ public class CzechLayout extends KeyboardLayout {
 	public static final String LOCALE_NAME = 			"cs-CZ";
 	public static final String LAYOUT_NAME_NATIVE =	 	"Čeština";
 	public static final String LAYOUT_NAME_ENGLISH = 	"Czech";
-	public static final String LAYOUT_VARIANT = 		"CZ";
+	public static final String LAYOUT_VARIANT = 		"CZ (Programmers)";
 	
 	//{char (16b unicode), modifier, key, deadkey_modifier, deadkey}
 	//cs-CZ
@@ -76,7 +76,7 @@ public class CzechLayout extends KeyboardLayout {
 		{   91,	    0,	   47,	    0,	    0	},	// [
 		{   92,	    0,	   49,	    0,	    0	},	// backslash
 		{   93,	    0,	   48,	    0,	    0	},	// ]
-		{   94,	    2,	   35,	    0,	    0	},	// ^ fixed! "deadkey" is duplicated in this layout!
+		{   94,	    2,	   35,	    0,	    0	},	// ^ fixed! "deadkey" is duplicated in this layout!  shift+6 = ^ (not deadkey) ; shift+altGr+\ = ^ (as deadkey)
 		{   95,	    2,	   45,	    0,	    0	},	// _
 		{   96,	    0,	   53,	    0,	    0	},	// `
 		{   97,	    0,	    4,	    0,	    0	},	// a
