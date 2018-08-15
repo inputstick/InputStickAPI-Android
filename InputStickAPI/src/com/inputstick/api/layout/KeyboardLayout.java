@@ -125,7 +125,7 @@ public abstract class KeyboardLayout {
 		CanadianFrenchLayout.getInstance(),
 		CroatianLayout.getInstance(),
 		CzechLayout.getInstance(),
-		CzechLayoutAlt.getInstance(),
+		CzechLayoutQwerty.getInstance(),
 		DanishLayout.getInstance(),
 		DutchLayout.getInstance(),
 		DvorakLayout.getInstance(),
