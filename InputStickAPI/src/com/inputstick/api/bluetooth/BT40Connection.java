@@ -52,6 +52,8 @@ public class BT40Connection extends BTConnection {
 
     private LinkedList<byte[]> txBuffer;
     private boolean canSend;
+    private long lastRxTime;
+    private long connectTime;
     
     private boolean isConnecting;
     private Handler handler;
@@ -196,6 +198,13 @@ public class BT40Connection extends BTConnection {
 	}		
 	
 	private synchronized void sendNext() {
+		long time = System.currentTimeMillis();
+		if ((time > lastRxTime + 55) && (time > connectTime + 3000)) {
+			long diff = time - lastRxTime;
+			System.out.println("deny: " + time + " / " + lastRxTime + " / " + diff);
+			return;
+		}		
+		
 		if (canSend) {
 			byte[] data = getData();
 			if (data != null) {
@@ -209,6 +218,7 @@ public class BT40Connection extends BTConnection {
 					r1 = gattCharacteristic.setValue(data);
 					gattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);		
 					r2 = mBluetoothGatt.writeCharacteristic(gattCharacteristic);
+					System.out.println("SEND");
 				}
 				if (hardwareType == HW_DA) {
 					BluetoothGattService gattService = mBluetoothGatt.getService(UUID.fromString(DA_SPS));  
@@ -328,6 +338,9 @@ public class BT40Connection extends BTConnection {
 			
             txBuffer = new LinkedList<byte[]>();		     			            
             canSend = true;
+            connectTime = System.currentTimeMillis();
+            lastRxTime = connectTime;
+			System.out.println("init rx " + lastRxTime);
             sendNext();
             
             mBTservice.connectionEstablished();
@@ -346,6 +359,10 @@ public class BT40Connection extends BTConnection {
 			if (b != null) {
 				Util.log(Util.FLAG_LOG_BT_PACKET, "onCharacteristicChanged (" + b.length + ")");
 				mBTservice.onByteRx(b);
+				
+				lastRxTime = System.currentTimeMillis();
+				System.out.println("rx " + lastRxTime);
+				sendNext();
 			} else {
 				Util.log(Util.FLAG_LOG_BT_EXCEPTION, "onCharacteristicChanged (null)");
 			}
