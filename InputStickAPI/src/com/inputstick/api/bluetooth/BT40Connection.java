@@ -200,8 +200,8 @@ public class BT40Connection extends BTConnection {
 	private synchronized void sendNext() {
 		long time = System.currentTimeMillis();
 		if ((time > lastRxTime + 55) && (time > connectTime + 3000)) {
-			long diff = time - lastRxTime;
-			System.out.println("deny: " + time + " / " + lastRxTime + " / " + diff);
+			//long diff = time - lastRxTime;
+			//System.out.println("deny: " + time + " / " + lastRxTime + " / " + diff);
 			return;
 		}		
 		
@@ -218,7 +218,6 @@ public class BT40Connection extends BTConnection {
 					r1 = gattCharacteristic.setValue(data);
 					gattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);		
 					r2 = mBluetoothGatt.writeCharacteristic(gattCharacteristic);
-					System.out.println("SEND");
 				}
 				if (hardwareType == HW_DA) {
 					BluetoothGattService gattService = mBluetoothGatt.getService(UUID.fromString(DA_SPS));  
@@ -280,7 +279,7 @@ public class BT40Connection extends BTConnection {
 				    		 break;
 			            }
 			            
-			            if (DA_SPS.equals(uuid)) {		//
+			            if (DA_SPS.equals(uuid)) {		
 			            	characteristicRx = gattService.getCharacteristic(DA_UUID_RX);
 				    		characteristicTx = gattService.getCharacteristic(DA_UUID_TX);				    		 
 							if (characteristicTx == null || characteristicRx == null) {
@@ -340,7 +339,7 @@ public class BT40Connection extends BTConnection {
             canSend = true;
             connectTime = System.currentTimeMillis();
             lastRxTime = connectTime;
-			System.out.println("init rx " + lastRxTime);
+			//System.out.println("init rx " + lastRxTime);
             sendNext();
             
             mBTservice.connectionEstablished();
@@ -361,7 +360,7 @@ public class BT40Connection extends BTConnection {
 				mBTservice.onByteRx(b);
 				
 				lastRxTime = System.currentTimeMillis();
-				System.out.println("rx " + lastRxTime);
+				//System.out.println("rx " + lastRxTime);
 				sendNext();
 			} else {
 				Util.log(Util.FLAG_LOG_BT_EXCEPTION, "onCharacteristicChanged (null)");
