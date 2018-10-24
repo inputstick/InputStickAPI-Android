@@ -2,14 +2,17 @@ package com.inputstick.api;
 
 public class Packet {
 	
+	
 	public static final byte NONE =							0x00;
 	
 	public static final byte START_TAG = 					0x55;
 	public static final byte FLAG_RESPOND = 				(byte)0x80;
 	public static final byte FLAG_ENCRYPTED = 				0x40;
+	public static final byte FLAG_HMAC = 					0x20;
 	
 	public static final int MAX_SUBPACKETS = 				17;	
-	public static final int MAX_LENGTH = 					MAX_SUBPACKETS * 16;
+	public static final int MAX_TOTAL_LENGTH = 				MAX_SUBPACKETS * 16;
+	public static final int MAX_PAYLOAD_LENGTH = 			MAX_TOTAL_LENGTH - 4; 
 	
 	public static final byte CMD_IDENTIFY =		 			0x01;
 	public static final byte CMD_LED =				 		0x02;
@@ -56,6 +59,8 @@ public class Packet {
 	public static final byte CMD_HID_STATUS =				0x2F;
 	
 	
+	public static final byte CMD_INIT_AUTH_HMAC =	 		0x30;
+	
 	
 	public static final byte CMD_DUMMY =	 				(byte)0xFF;
 	
@@ -80,7 +85,7 @@ public class Packet {
 	
 	public Packet(boolean respond, byte cmd, byte param, byte[] data) {
 		mRespond = respond;
-		mData = new byte[MAX_LENGTH];
+		mData = new byte[MAX_TOTAL_LENGTH];
 		mData[0] = cmd;
 		mData[1] = param;
 		mPos = 2;		
@@ -93,7 +98,7 @@ public class Packet {
 	
 	public Packet(boolean respond, byte cmd) {
 		mRespond = respond;
-		mData = new byte[MAX_LENGTH];
+		mData = new byte[MAX_TOTAL_LENGTH];
 		mData[0] = cmd;
 		mPos = 1;
 	}	
@@ -166,7 +171,7 @@ public class Packet {
 	}
 	
 	public int getRemainingFreeSpace() {
-		return MAX_LENGTH - mPos;
+		return MAX_TOTAL_LENGTH - mPos;
 	}
 
 	public void print() {		
