@@ -3,7 +3,6 @@ package com.inputstick.api.basic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
 
 import android.app.AlertDialog;
@@ -648,43 +647,14 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 		
 		if (cmd == Packet.CMD_HID_STATUS) {
 			mHIDInfo.update(data);
+			
 			InputStickKeyboard.setReportProtocol(mHIDInfo.isKeyboardReportProtocol());
 			InputStickMouse.setReportProtocol(mHIDInfo.isMouseReportProtocol());
 			
-			if (mHIDInfo.isSentToHostInfoAvailable()) {
-				// >= FW 0.93
-				keyboardQueue.deviceReady(mHIDInfo, mHIDInfo.getKeyboardReportsSentToHost());
-				mouseQueue.deviceReady(mHIDInfo, mHIDInfo.getMouseReportsSentToHost());
-				consumerQueue.deviceReady(mHIDInfo, mHIDInfo.getConsumerReportsSentToHost());
-				rawHIDQueue.deviceReady(mHIDInfo, mHIDInfo.getRawHIDReportsSentToHost());
-				
-				if (mDeviceInfo != null) {
-					if ((updateQueueTimer == null) && (mDeviceInfo.getFirmwareVersion() < 97)) {
-						updateQueueTimer = new Timer();
-						updateQueueTimer.schedule(new TimerTask() {
-							@Override
-							public void run() {
-								keyboardQueue.sendToBuffer(false);
-								mouseQueue.sendToBuffer(false);
-								consumerQueue.sendToBuffer(false);
-								rawHIDQueue.sendToBuffer(false);
-							}
-						}, 5, 5);						
-					}
-				}
-			} else { 					
-				//previous FW versions
-				if (mHIDInfo.isKeyboardReady()) {
-					keyboardQueue.deviceReady(null, 0);
-				}
-				if (mHIDInfo.isMouseReady()) {
-					mouseQueue.deviceReady(null, 0);
-				}
-				if (mHIDInfo.isConsumerReady()) {
-					consumerQueue.deviceReady(null, 0);
-				}
-				//raw HID was not supported
-			}
+			keyboardQueue.update(mHIDInfo);
+			mouseQueue.update(mHIDInfo);
+			consumerQueue.update(mHIDInfo);
+			rawHIDQueue.update(mHIDInfo);			
 			
 			InputStickKeyboard.setLEDs(mHIDInfo.getNumLock(), mHIDInfo.getCapsLock(), mHIDInfo.getScrollLock());			
 		}
