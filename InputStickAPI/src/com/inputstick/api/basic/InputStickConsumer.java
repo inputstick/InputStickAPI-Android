@@ -45,7 +45,7 @@ public class InputStickConsumer {
 		HIDTransaction t = new HIDTransaction();
 		t.addReport(new ConsumerReport(ConsumerReport.SYSTEM_REPORT_ID, action, (byte)0));
 		t.addReport(new ConsumerReport(ConsumerReport.SYSTEM_REPORT_ID, (byte)0, (byte)0));
-		InputStickHID.addConsumerTransaction(t);	
+		InputStickHID.addConsumerTransaction(t, true);	
 	}	
 	
 	
@@ -85,7 +85,7 @@ public class InputStickConsumer {
 		HIDTransaction t = new HIDTransaction();
 		t.addReport(new ConsumerReport(action));
 		t.addReport(new ConsumerReport());
-		InputStickHID.addConsumerTransaction(t);		
+		InputStickHID.addConsumerTransaction(t, true);		
 	}
 
 

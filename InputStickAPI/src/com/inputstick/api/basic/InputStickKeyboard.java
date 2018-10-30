@@ -61,7 +61,7 @@ public class InputStickKeyboard {
 		t.addReport(new KeyboardReport(modifier, NONE));
 		t.addReport(new KeyboardReport(modifier, key));
 		t.addReport(new KeyboardReport(NONE, NONE));
-		InputStickHID.addKeyboardTransaction(t);
+		InputStickHID.addKeyboardTransaction(t, true);
 	}	
 	
 	
@@ -90,7 +90,7 @@ public class InputStickKeyboard {
 			t.addReport(new KeyboardReport(NONE, NONE));
 		}		
 		
-		InputStickHID.addKeyboardTransaction(t);
+		InputStickHID.addKeyboardTransaction(t, true);
 	}		
 	
 	
@@ -170,7 +170,7 @@ public class InputStickKeyboard {
 	public static void customReport(byte modifier, byte key0, byte key1, byte key2, byte key3, byte key4, byte key5) {
 		HIDTransaction t = new HIDTransaction();
 		t.addReport(new KeyboardReport(modifier, key0, key1, key2, key3, key4, key5));
-		InputStickHID.addKeyboardTransaction(t);
+		InputStickHID.addKeyboardTransaction(t, true);
 	}	
 	
 	

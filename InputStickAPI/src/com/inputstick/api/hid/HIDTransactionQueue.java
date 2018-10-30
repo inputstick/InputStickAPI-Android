@@ -93,70 +93,70 @@ public class HIDTransactionQueue {
 				notifyOnRemoteBufferEmpty();			
 			}
 		} else {
-			boolean didSend;
-			do {
-				didSend = sendFromQueue();	
-			} while (didSend);
-			
+			sendFromQueue();				
 		}
 	}
 	
 	
-	private synchronized boolean sendFromQueue() {		
-		if ( !queue.isEmpty() && mFreeSpace > 0) {			
-			byte reports = 0;		
-			int remainingReports = (mFreeSpace > mMaxReportsPerPacket) ? mMaxReportsPerPacket : mFreeSpace;  			
-			Packet p = new Packet(false, cmd, reports);
-			
-			HIDTransaction transaction = queue.peek();
-			//allow only one type of transaction (consumer control/touch-screen/gamepad) to be sent in a single packet (consumer control interface specific)
-			byte firstTransactionCmd = transaction.getTransactionTypeCmd();
-			byte transactionCmd;
-			
-			while(true) {
-				transaction = queue.peek();
-				if (transaction == null) {
-					break;
-				}
-				transactionCmd = transaction.getTransactionTypeCmd();
-				if (transactionCmd != firstTransactionCmd) {
-					break;
-				}				
-				if (transaction.getReportsCount() > remainingReports) {
-					break;
-				}
-								
-				remainingReports -= transaction.getReportsCount();
-				reports += transaction.getReportsCount();
-				while (transaction.hasNext()) {
-					p.addBytes(transaction.getNextReport());					
-				}						
-				queue.removeFirst();
-			}
-			
-			if (reports > 0) {
-				if (firstTransactionCmd != HIDTransaction.TRANSACTION_CMD_DEFAULT) {
-					p.modifyByte(0, firstTransactionCmd);
+	public synchronized void sendFromQueue() {		
+		boolean didSend;
+		do {
+			didSend = false;
+			if ( !queue.isEmpty() && mFreeSpace > 0) {			
+				byte reports = 0;		
+				int remainingReports = (mFreeSpace > mMaxReportsPerPacket) ? mMaxReportsPerPacket : mFreeSpace;  			
+				Packet p = new Packet(false, cmd, reports);
+				
+				HIDTransaction transaction = queue.peek();
+				//allow only one type of transaction (consumer control/touch-screen/gamepad) to be sent in a single packet (consumer control interface specific)
+				byte firstTransactionCmd = transaction.getTransactionTypeCmd();
+				byte transactionCmd;
+				
+				while(true) {
+					transaction = queue.peek();
+					if (transaction == null) {
+						break;
+					}
+					transactionCmd = transaction.getTransactionTypeCmd();
+					if (transactionCmd != firstTransactionCmd) {
+						break;
+					}				
+					if (transaction.getReportsCount() > remainingReports) {
+						break;
+					}
+									
+					remainingReports -= transaction.getReportsCount();
+					reports += transaction.getReportsCount();
+					while (transaction.hasNext()) {
+						p.addBytes(transaction.getNextReport());					
+					}						
+					queue.removeFirst();
 				}
 				
-				p.modifyByte(1, reports);
-				mConnectionManager.sendPacket(p);
-				mFreeSpace -= reports;
-				mSentSinceLastNotification += reports;
-			}
-			
-			if (queue.isEmpty()) {
-				notifyOnLocalBufferEmpty();
-			}
-			
-			if (reports > 0) {
-				return true;
-			}
-		}
-		return false;		
+				if (reports > 0) {
+					if (firstTransactionCmd != HIDTransaction.TRANSACTION_CMD_DEFAULT) {
+						p.modifyByte(0, firstTransactionCmd);
+					}
+					
+					p.modifyByte(1, reports);
+					mConnectionManager.sendPacket(p);
+					mFreeSpace -= reports;
+					mSentSinceLastNotification += reports;
+					System.out.println("SEND: " + reports);
+				}
+				
+				if (queue.isEmpty()) {
+					notifyOnLocalBufferEmpty();
+				}
+				
+				if (reports > 0) {
+					didSend = true;
+				}
+			} 			
+		} while (didSend);
 	}	
 	
-	public synchronized void addTransaction(HIDTransaction transaction) {
+	public synchronized void addTransaction(HIDTransaction transaction, boolean sendNow) {
 		//split transaction if necessary to make sure if can fit into: single packet	
 		while (transaction.getReportsCount() > mMaxReportsPerPacket) {
 			HIDTransaction t = transaction.split(mMaxReportsPerPacket);
@@ -164,7 +164,9 @@ public class HIDTransactionQueue {
 		}
 		
 		queue.add(transaction);
-		sendFromQueue();
+		if (sendNow) {
+			sendFromQueue();
+		}
 	}		
 	
 	private void notifyOnRemoteBufferEmpty() {

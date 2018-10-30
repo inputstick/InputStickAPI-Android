@@ -30,7 +30,7 @@ public class InputStickRawHID {
 					end = data.length;
 				}
 				t.addReport(new RawHIDReport(Arrays.copyOfRange(data, start, end)));
-				InputStickHID.addRawHIDTransaction(t);
+				InputStickHID.addRawHIDTransaction(t, true);
 				start = end;
 			}
 		}

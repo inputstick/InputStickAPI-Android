@@ -375,10 +375,26 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	 * This should prevent from key being stuck in pressed position when connection is suddenly lost.
 	 * 
 	 * @param transaction	transaction to be queued
+	 * @param sendNow	if true transaction will be sent now (if possible), if false, when next status update is received or when buffer is flushed
 	 */
+	public static void addKeyboardTransaction(HIDTransaction transaction, boolean sendNow) {
+		if ((transaction != null) && (keyboardQueue != null)) {
+			keyboardQueue.addTransaction(transaction, sendNow);
+		}
+	}
+	
 	public static void addKeyboardTransaction(HIDTransaction transaction) {
 		if ((transaction != null) && (keyboardQueue != null)) {
-			keyboardQueue.addTransaction(transaction);	
+			keyboardQueue.addTransaction(transaction, true);
+		}
+	}
+	
+	/*
+	 * Send all reports currently stored in keyboard queue
+	 */
+	public static void flushKeyboardBuffer() {
+		if (keyboardQueue != null) {
+			keyboardQueue.sendFromQueue();
 		}
 	}
 	
@@ -388,23 +404,54 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	 * If possible, all reports form a single transactions will be sent in a single packet.
 	 * 
 	 * @param transaction	transaction to be queued	 
+	 * @param sendNow	if true transaction will be sent now (if possible), if false, when next status update is received or when buffer is flushed
 	 */
-	public static void addMouseTransaction(HIDTransaction transaction) {
+	public static void addMouseTransaction(HIDTransaction transaction, boolean sendNow) {
 		if ((transaction != null) && (mouseQueue != null)) {
-			mouseQueue.addTransaction(transaction);
+			mouseQueue.addTransaction(transaction, sendNow);
 		}
 	}
 	
+	public static void addMouseTransaction(HIDTransaction transaction) {
+		if ((transaction != null) && (mouseQueue != null)) {
+			mouseQueue.addTransaction(transaction, true);
+		}
+	}
+	
+	/*
+	 * Send all reports currently stored in mouse queue
+	 */
+	public static void flushMouseBuffer() {
+		if (mouseQueue != null) {
+			mouseQueue.sendFromQueue();
+		}
+	}
 	
 	/*
 	 * Adds transaction to consumer control queue. 
 	 * If possible, all reports form a single transactions will be sent in a single packet.
 	 * 
 	 * @param transaction	transaction to be queued	 
+	 * @param sendNow	if true transaction will be sent now (if possible), if false, when next status update is received or when buffer is flushed
 	 */
+	public static void addConsumerTransaction(HIDTransaction transaction, boolean sendNow) {
+		if ((transaction != null) && (consumerQueue != null)) {
+			consumerQueue.addTransaction(transaction, sendNow);
+		}
+	}
+	
 	public static void addConsumerTransaction(HIDTransaction transaction) {
 		if ((transaction != null) && (consumerQueue != null)) {
-			consumerQueue.addTransaction(transaction);
+			consumerQueue.addTransaction(transaction, true);
+		}
+	}
+	
+	/*
+	 * Send all reports currently stored in consumer control queue
+	 */
+	public static void flushConsumerBuffer() {
+		if (consumerQueue != null) {
+			consumerQueue.sendFromQueue();
 		}
 	}
 	
@@ -414,10 +461,26 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	 * If possible, all reports form a single transactions will be sent in a single packet.
 	 * 
 	 * @param transaction	transaction to be queued	 
+	 * @param sendNow	if true transaction will be sent now (if possible), if false, when next status update is received or when buffer is flushed
 	 */
+	public static void addRawHIDTransaction(HIDTransaction transaction, boolean sendNow) {
+		if ((transaction != null) && (rawHIDQueue != null)) {
+			rawHIDQueue.addTransaction(transaction, sendNow);
+		}
+	}
+	
 	public static void addRawHIDTransaction(HIDTransaction transaction) {
 		if ((transaction != null) && (rawHIDQueue != null)) {
-			rawHIDQueue.addTransaction(transaction);
+			rawHIDQueue.addTransaction(transaction, true);
+		}
+	}
+	
+	/*
+	 * Send all reports currently stored in raw HID queue
+	 */
+	public static void flushRawHIDBuffer() {
+		if (rawHIDQueue != null) {
+			rawHIDQueue.sendFromQueue();
 		}
 	}
 

@@ -39,7 +39,7 @@ public class InputStickTouchScreen {
 	public static void moveTouchPointer(boolean buttonPressed, int x, int y) {
 		HIDTransaction t = new HIDTransaction(Packet.CMD_HID_DATA_TOUCHSCREEN);
 		t.addReport(new TouchScreenReport(buttonPressed, true, x, y));
-		InputStickHID.addConsumerTransaction(t);		
+		InputStickHID.addConsumerTransaction(t, true);		
 	}
 	
 	
@@ -57,7 +57,7 @@ public class InputStickTouchScreen {
 			t.addReport(new TouchScreenReport(true, true, x, y)); //press
 			t.addReport(new TouchScreenReport(false, true, x, y)); //release			
 		}			
-		InputStickHID.addConsumerTransaction(t);	
+		InputStickHID.addConsumerTransaction(t, true);	
 	}
 	
 	
@@ -68,7 +68,7 @@ public class InputStickTouchScreen {
 	public static void goOutOfRange() {
 		HIDTransaction t = new HIDTransaction(Packet.CMD_HID_DATA_TOUCHSCREEN);
 		t.addReport(new TouchScreenReport(false, false, 0, 0));
-		InputStickHID.addConsumerTransaction(t);
+		InputStickHID.addConsumerTransaction(t, true);
 	}
 	
 	
@@ -81,7 +81,7 @@ public class InputStickTouchScreen {
 	public static void goOutOfRange(int x, int y) {
 		HIDTransaction t = new HIDTransaction(Packet.CMD_HID_DATA_TOUCHSCREEN);
 		t.addReport(new TouchScreenReport(false, false, x, y));
-		InputStickHID.addConsumerTransaction(t);
+		InputStickHID.addConsumerTransaction(t, true);
 	}	
 	
 	
@@ -96,7 +96,7 @@ public class InputStickTouchScreen {
 	public static void customTouchPointerReport(boolean tipSwitch, boolean inRange, int x, int y) {
 		HIDTransaction t = new HIDTransaction(Packet.CMD_HID_DATA_TOUCHSCREEN);
 		t.addReport(new TouchScreenReport(tipSwitch, inRange, x, y));
-		InputStickHID.addConsumerTransaction(t);		
+		InputStickHID.addConsumerTransaction(t, true);		
 	}
 	
 

@@ -225,15 +225,16 @@ public abstract class KeyboardLayout {
 			for (char c : chars) {
 				t = getHIDTransaction(fastLUT, c, modifiers, typingSpeed);				
 				if (t != null) {
-					InputStickHID.addKeyboardTransaction(t);
+					InputStickHID.addKeyboardTransaction(t, false);
 				}				
 			}
 			//release key
 			if (typingSpeed == 0) {
 				t = new HIDTransaction();	
 				t.addReport(new KeyboardReport());
-				InputStickHID.addKeyboardTransaction(t);
-			}			
+				InputStickHID.addKeyboardTransaction(t, false);
+			}		
+			InputStickHID.flushKeyboardBuffer();
 		}
 	}
 
