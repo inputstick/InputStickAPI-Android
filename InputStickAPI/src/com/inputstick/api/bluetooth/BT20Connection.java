@@ -47,6 +47,11 @@ public class BT20Connection extends BTConnection {
 		Util.log(Util.FLAG_LOG_BT_CALLS, "Disconnect (2.0)");
 		cancelThreads();          
 	}
+	
+	@Override
+	public void setStatusUpdateInterval(int updateRate) {
+		
+	}
 
 	@Override
 	public void write(byte[] out) {

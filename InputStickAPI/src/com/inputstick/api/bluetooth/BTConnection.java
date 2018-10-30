@@ -23,4 +23,5 @@ public abstract class BTConnection {
 	public abstract void connect();
 	public abstract void disconnect();
 	public abstract void write(byte[] out);
+	public abstract void setStatusUpdateInterval(int updateRate);
 }

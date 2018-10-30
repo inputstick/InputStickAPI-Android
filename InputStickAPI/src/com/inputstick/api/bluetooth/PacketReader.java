@@ -30,8 +30,9 @@ public class PacketReader {
     }
 	
 	
-	public void rxByte(byte b) {
+	public boolean rxByte(byte b) {
 		//byte b = (byte)rxByte;
+		boolean result = false;
     	long time = System.currentTimeMillis();
     	if (time > lastRxTime + RX_TIMEOUT) {
     		rxState = RX_TAG;
@@ -75,6 +76,7 @@ public class PacketReader {
     					Util.log(Util.FLAG_LOG_BT_PACKET, "Received (" + rxLength + "B)");
     					mHandler.obtainMessage(BTService.EVENT_DATA, 0, 0, rxData).sendToTarget();
     					rxState = RX_TAG;
+    					result = true;
     				}
     			} else {
     				//buffer overrun!
@@ -85,6 +87,7 @@ public class PacketReader {
     	}
     	
     	lastRxTime = time;
+    	return result;
     }
 
 }

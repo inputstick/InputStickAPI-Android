@@ -53,7 +53,7 @@ public class BT40Connection extends BTConnection {
     private LinkedList<byte[]> txBuffer;
     private boolean canSend;
     private long lastRxTime;
-    private long connectTime;
+    private int mStatusUpdateInterval; //prevents packet lost caused by BLE stack
     
     private boolean isConnecting;
     private Handler handler;
@@ -67,6 +67,7 @@ public class BT40Connection extends BTConnection {
     	super(app, btService, mac, reflections);    	     	
     	BluetoothManager bluetoothManager = (BluetoothManager) (mCtx.getSystemService(Context.BLUETOOTH_SERVICE));
 		mBluetoothAdapter = bluetoothManager.getAdapter();    	
+		mStatusUpdateInterval = 0;
     }
     
 	@Override
@@ -108,6 +109,12 @@ public class BT40Connection extends BTConnection {
 	}
 	
 
+	@Override
+	public void setStatusUpdateInterval(int interval) {
+		mStatusUpdateInterval = interval;
+		lastRxTime = System.currentTimeMillis() - mStatusUpdateInterval; //force to wait for next update packet
+		Util.log(Util.FLAG_LOG_BT_CALLS, "Status Update Interval set to: " + interval);
+	}
 
 	@Override
 	public void write(byte[] out) {
@@ -116,8 +123,6 @@ public class BT40Connection extends BTConnection {
     	
     	//SPECIAL CASES for flashing utility
     	if (Util.flashingToolMode) {
-    		//txBuffer.add(out);
-    		//return;
 	    	if (out.length == 1) {
 	    		txBuffer.add(out);
 	    		sendNext();
@@ -142,6 +147,8 @@ public class BT40Connection extends BTConnection {
     	    	
     	if (out.length == 2) {
     		addHeader(out);
+    	} else if (out.length == 20) {
+    		addHMAC(out);
     	} else {    		
     		int loops = out.length / 16;
     		offset = 0;
@@ -164,6 +171,12 @@ public class BT40Connection extends BTConnection {
 		h0 = data[0];
 		h1 = data[1];
 		header = true;
+	}
+	
+	private synchronized void addHMAC(byte[] data) {
+		if (txBuffer != null) {
+			txBuffer.add(data);
+		}
 	}
 	
 	private synchronized void addData16(byte[] data) {
@@ -198,10 +211,9 @@ public class BT40Connection extends BTConnection {
 	}		
 	
 	private synchronized void sendNext() {
+		//prevent packet lost (do not send data if we know that in next few ms data will be received (sending data now could result in a packet lost in some cases)
 		long time = System.currentTimeMillis();
-		if ((time > lastRxTime + 55) && (time > connectTime + 3000)) {
-			//long diff = time - lastRxTime;
-			//System.out.println("deny: " + time + " / " + lastRxTime + " / " + diff);
+		if ((mStatusUpdateInterval > 0) && (time > lastRxTime + mStatusUpdateInterval - 45)) {
 			return;
 		}		
 		
@@ -337,9 +349,7 @@ public class BT40Connection extends BTConnection {
 			
             txBuffer = new LinkedList<byte[]>();		     			            
             canSend = true;
-            connectTime = System.currentTimeMillis();
-            lastRxTime = connectTime;
-			//System.out.println("init rx " + lastRxTime);
+            lastRxTime = System.currentTimeMillis();
             sendNext();
             
             mBTservice.connectionEstablished();
@@ -357,11 +367,12 @@ public class BT40Connection extends BTConnection {
 			byte b[] = characteristic.getValue();
 			if (b != null) {
 				Util.log(Util.FLAG_LOG_BT_PACKET, "onCharacteristicChanged (" + b.length + ")");
-				mBTservice.onByteRx(b);
-				
-				lastRxTime = System.currentTimeMillis();
-				//System.out.println("rx " + lastRxTime);
-				sendNext();
+				//send next packet only if a complete packet was received
+				boolean processedPacket = mBTservice.onByteRx(b);				
+				if (processedPacket) {				
+					lastRxTime = System.currentTimeMillis();
+					sendNext();
+				}
 			} else {
 				Util.log(Util.FLAG_LOG_BT_EXCEPTION, "onCharacteristicChanged (null)");
 			}

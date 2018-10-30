@@ -85,6 +85,12 @@ public class BTService {
     	mUseReflection = enabled;
     }
     
+    public void setStatusUpdateInterval(int interval) {
+        if (connected) {
+        	mBTConnection.setStatusUpdateInterval(interval);
+        }
+	}
+    
 
     protected synchronized void event(int event, int arg1) {    	
     	Util.log(Util.FLAG_LOG_BT_SERVICE, "event() " + mLastEvent + " -> " + event);	
@@ -230,10 +236,15 @@ public class BTService {
     	mPacketReader.rxByte((byte)rxByte);
     }
     
-    protected synchronized void onByteRx(byte[] rxBytes) {
+    //returns true if at least one complete packet was processed 
+    protected synchronized boolean onByteRx(byte[] rxBytes) {
+    	boolean result = false;
     	for (int i = 0; i < rxBytes.length; i++) {
-    		mPacketReader.rxByte(rxBytes[i]);
+    		if (mPacketReader.rxByte(rxBytes[i])) {
+    			result = true;
+    		}
     	}
+    	return result;
     }
     
     
