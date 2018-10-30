@@ -75,7 +75,7 @@ public class HIDTransactionQueue {
 			mFreeSpace = mBufferCapacity;
 		}
 		
-		/* TODO111 leave as failsafe?
+		/* TODO add as failsafe?
 		if (interfaceReady) {
 			interfaceReadyCnt++;
 			if (interfaceReadyCnt == 10) {
@@ -85,22 +85,27 @@ public class HIDTransactionQueue {
 			interfaceReadyCnt = 0;
 		}*/
 		
+		
+		
 		if (queue.isEmpty()) {
 			if ((mFreeSpace == mBufferCapacity) && (mSentSinceLastNotification != 0)) {
 				mSentSinceLastNotification = 0;
 				notifyOnRemoteBufferEmpty();			
 			}
 		} else {
-			sendFromQueue();
+			boolean didSend;
+			do {
+				didSend = sendFromQueue();	
+			} while (didSend);
+			
 		}
 	}
 	
 	
-	private synchronized void sendFromQueue() {		
-		if ( !queue.isEmpty() && mFreeSpace > 0) {
-			int remainingReports = mFreeSpace;  
-
+	private synchronized boolean sendFromQueue() {		
+		if ( !queue.isEmpty() && mFreeSpace > 0) {			
 			byte reports = 0;		
+			int remainingReports = (mFreeSpace > mMaxReportsPerPacket) ? mMaxReportsPerPacket : mFreeSpace;  			
 			Packet p = new Packet(false, cmd, reports);
 			
 			HIDTransaction transaction = queue.peek();
@@ -124,7 +129,7 @@ public class HIDTransactionQueue {
 				remainingReports -= transaction.getReportsCount();
 				reports += transaction.getReportsCount();
 				while (transaction.hasNext()) {
-					p.addBytes(transaction.getNextReport());
+					p.addBytes(transaction.getNextReport());					
 				}						
 				queue.removeFirst();
 			}
@@ -133,6 +138,7 @@ public class HIDTransactionQueue {
 				if (firstTransactionCmd != HIDTransaction.TRANSACTION_CMD_DEFAULT) {
 					p.modifyByte(0, firstTransactionCmd);
 				}
+				
 				p.modifyByte(1, reports);
 				mConnectionManager.sendPacket(p);
 				mFreeSpace -= reports;
@@ -142,8 +148,12 @@ public class HIDTransactionQueue {
 			if (queue.isEmpty()) {
 				notifyOnLocalBufferEmpty();
 			}
+			
+			if (reports > 0) {
+				return true;
+			}
 		}
-				
+		return false;		
 	}	
 	
 	public synchronized void addTransaction(HIDTransaction transaction) {
