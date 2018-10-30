@@ -51,6 +51,10 @@ public class InitManager {
 		mPacketManager.sendPacket(p);
 	}
 	
+	public void setStatusUpdateInterval(int interval) {
+		mPacketManager.setStatusUpdateInterval(interval);
+	}
+	
 	public void onFWInfo(byte[] data, boolean authenticate, boolean enableEncryption, Packet sendNext) {
 		mInfo = new DeviceInfo(data);			
 		
@@ -58,7 +62,8 @@ public class InitManager {
 			if (mInfo.isPasswordProtected()) {
 				if (mKey != null) {
 					//authenticate
-					sendPacket(mPacketManager.encPacket(enableEncryption));
+					boolean hmac = (mInfo.getFirmwareVersion() >= 100);
+					sendPacket(mPacketManager.encPacket(enableEncryption, hmac));
 				} else {
 					mListener.onInitFailure(InputStickError.ERROR_SECURITY_NO_KEY);
 				}
@@ -79,10 +84,17 @@ public class InitManager {
 		
 		switch (respCode) {
 			case Packet.RESP_OK:
-				byte[] cmp = new byte[16];
 				//TODO check length!
-				System.arraycopy(data, 2, cmp, 0, 16);				
-				if (mPacketManager.setEncryption(cmp, enableOutEncryption)) {
+				byte[] cmp = new byte[16];
+				byte[] hmacKey = null;
+				System.arraycopy(data, 2, cmp, 0, 16);
+				
+				if (mInfo.getFirmwareVersion() >= 100) {
+					hmacKey = new byte[32];
+					System.arraycopy(data, 18, hmacKey, 0, 32);
+				}
+				
+				if (mPacketManager.setEncryption(cmp, enableOutEncryption, hmacKey)) {
 					sendPacket(sendNext);
 					return true;
 				} else {

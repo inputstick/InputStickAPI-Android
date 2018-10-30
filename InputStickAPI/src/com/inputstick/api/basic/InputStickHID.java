@@ -2,7 +2,6 @@ package com.inputstick.api.basic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Timer;
 import java.util.Vector;
 
 import android.app.AlertDialog;
@@ -46,10 +45,6 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	private static HIDTransactionQueue consumerQueue;
 	private static HIDTransactionQueue rawHIDQueue;
 	
-		
-	//FW 0.93 - 0.95
-	private static Timer updateQueueTimer;	
-	
 	private InputStickHID() {
 	}
 	
@@ -58,15 +53,26 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	}
 	
 	private static void init() {
-		mHIDInfo = new HIDInfo();
-		keyboardQueue = new HIDTransactionQueue(INTERFACE_KEYBOARD, mConnectionManager);
-		mouseQueue = new HIDTransactionQueue(INTERFACE_MOUSE, mConnectionManager);
-		consumerQueue = new HIDTransactionQueue(INTERFACE_CONSUMER, mConnectionManager);
-		rawHIDQueue = new HIDTransactionQueue(INTERFACE_RAW_HID, mConnectionManager);
+		mHIDInfo = new HIDInfo();	
+		keyboardQueue = null;
+		mouseQueue = null;
+		consumerQueue = null;
+		rawHIDQueue = null;
 		
 		mConnectionManager.addStateListener(instance);
 		mConnectionManager.addDataListener(instance);
 		mConnectionManager.connect();		
+	}
+	
+	private static void initQueues(int firmwareVersion) {
+		if (firmwareVersion >= 100) {
+			keyboardQueue = new HIDTransactionQueue(INTERFACE_KEYBOARD, mConnectionManager, 128, 32);
+		} else {
+			keyboardQueue = new HIDTransactionQueue(INTERFACE_KEYBOARD, mConnectionManager, 32, 32);
+		}
+		mouseQueue = new HIDTransactionQueue(INTERFACE_MOUSE, mConnectionManager, 32, 32);
+		consumerQueue = new HIDTransactionQueue(INTERFACE_CONSUMER, mConnectionManager, 32, 32);
+		rawHIDQueue = new HIDTransactionQueue(INTERFACE_RAW_HID, mConnectionManager);
 	}
 	
 	/*
@@ -616,10 +622,6 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	
 	@Override
 	public void onStateChanged(int state) {		
-		if ((state == ConnectionManager.STATE_DISCONNECTED) && (updateQueueTimer != null)) {
-			updateQueueTimer.cancel();
-			updateQueueTimer = null;
-		}
 		synchronized (mStateListeners) {
 			ArrayList<InputStickStateListener> tmp = new ArrayList<InputStickStateListener>();
 			for (InputStickStateListener listener : mStateListeners) {
@@ -637,6 +639,7 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 		byte cmd = data[0];
 		if (cmd == Packet.CMD_FW_INFO) {
 			mDeviceInfo = new DeviceInfo(data);		
+			initQueues(mDeviceInfo.getFirmwareVersion());			
 		}
 		
 		if (cmd == Packet.CMD_HID_DATA_RAW) {
@@ -651,10 +654,18 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 			InputStickKeyboard.setReportProtocol(mHIDInfo.isKeyboardReportProtocol());
 			InputStickMouse.setReportProtocol(mHIDInfo.isMouseReportProtocol());
 			
-			keyboardQueue.update(mHIDInfo);
-			mouseQueue.update(mHIDInfo);
-			consumerQueue.update(mHIDInfo);
-			rawHIDQueue.update(mHIDInfo);			
+			if (keyboardQueue != null) {
+				keyboardQueue.update(mHIDInfo);
+			}
+			if (mouseQueue != null) {
+				mouseQueue.update(mHIDInfo);
+			}
+			if (consumerQueue != null) {
+				consumerQueue.update(mHIDInfo);
+			}
+			if (rawHIDQueue != null) {
+				rawHIDQueue.update(mHIDInfo);
+			}
 			
 			InputStickKeyboard.setLEDs(mHIDInfo.getNumLock(), mHIDInfo.getCapsLock(), mHIDInfo.getScrollLock());			
 		}

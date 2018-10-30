@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.zip.CRC32;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import com.inputstick.api.bluetooth.BTService;
 
 public class PacketManager {
@@ -20,6 +23,9 @@ public class PacketManager {
 	private final CRC32 mCrc;	
 	private boolean mEncryption;
 	
+	private byte[] mHMACKey;	
+	private int mHmacCounter;
+	
 	public PacketManager(BTService btService, byte[] key) {
 		mBTService = btService;
 		mCrc = new CRC32();
@@ -28,10 +34,15 @@ public class PacketManager {
 		mEncryption = false;
 	}
 	
-	public boolean setEncryption(byte[] cmp, boolean encryptOut) {
-		byte[] cmpDec = mAes.decrypt(cmp);					
+	public boolean setEncryption(byte[] cmp, boolean encryptOut, byte[] encryptedHMACKey) {
+		byte[] cmpDec = mAes.decrypt(cmp);	
+		mHMACKey = null;
 		if (Arrays.equals(cmpDec, cmpData)) {
-			mEncryption = encryptOut;
+			mEncryption = encryptOut;		
+			if (encryptedHMACKey != null) {
+				mHMACKey = mAes.decrypt(encryptedHMACKey);
+			}
+			mHmacCounter = 0;
 			return true;
 		} else {
 			mEncryption = false;
@@ -47,9 +58,14 @@ public class PacketManager {
 		mKey = key;
 	}
 	
-	public Packet encPacket(boolean enable) {
+	public Packet encPacket(boolean enable, boolean hmac) {
 		Random r = new Random();         
-		Packet p = new Packet(true, Packet.CMD_INIT_AUTH);
+		Packet p;
+		if (hmac) {
+			p = new Packet(true, Packet.CMD_INIT_AUTH_HMAC);
+		} else {
+			p = new Packet(true, Packet.CMD_INIT_AUTH);
+		}
 		if (enable) {
 			p.addByte((byte)1);
 		} else {
@@ -59,8 +75,7 @@ public class PacketManager {
 		byte[] iv = mAes.init(mKey);		
 		p.addBytes(iv);
 		
-		//Util.printHex(mKey, "key: "); // TODO prnt
-		
+		//Util.printHex(mKey, "key: "); 	
 		//Util.printHex(iv, "IV: ");
 		
 		byte[] initData = new byte[16];
@@ -92,7 +107,6 @@ public class PacketManager {
 	
 	public byte[] bytesToPacket(byte[] data) {
 		byte[] payload;		
-		//boolean decrypt = false;
 		long crcValue, crcCompare;
 		
 		//Util.printHex(data, "RX DATA: "); // TODO prnt
@@ -102,7 +116,6 @@ public class PacketManager {
 			//Util.log("DECRYPT");
 			if (mAes.isReady()) {
 				payload = mAes.decrypt(payload);
-				//Util.printHex(payload, "RX DECR: "); // TODO prnt
 			} else {
 				return null;
 			}
@@ -119,12 +132,15 @@ public class PacketManager {
 		
 		if (crcValue == crcCompare) {
 			payload = Arrays.copyOfRange(payload, 4, payload.length); //remove CRC
-			//Util.printHex(payload, "RX PAYLOAD FINAL: "); // TODO prnt
 			return payload;
 		} else {
 			return null; //TODO			
 		}		
 		
+	}
+	
+	public void setStatusUpdateInterval(int interval) {
+		mBTService.setStatusUpdateInterval(interval);
 	}
 	
 	public void sendRAW(byte[] data) {
@@ -157,7 +173,6 @@ public class PacketManager {
 		mCrc.reset();
 		mCrc.update(result, CRC_OFFSET, result.length - CRC_OFFSET);		
 		crcValue = mCrc.getValue();
-		//Util.log("CRC: "+crcValue);
 		result[3] = (byte)crcValue;
 	    crcValue >>= 8;
 	    result[2] = (byte)crcValue;
@@ -166,10 +181,8 @@ public class PacketManager {
 		crcValue >>= 8;
 		result[0] = (byte)crcValue;			
 		
-		//Util.printHex(result, "TX DATA: "); // TODO prnt
 		if (encrypt) {
 			result = mAes.encrypt(result);
-			//Util.printHex(result, "ENC DATA: "); // TODO prnt
 		}
 		
 		header = new byte[2];
@@ -181,9 +194,43 @@ public class PacketManager {
 		if (p.getRespond()) {
 			header[1] |= Packet.FLAG_RESPOND;
 		}
-		//Util.printHex(header, "TX HEADER: "); // TODO prnt
+		
+		byte[] hmacPacket = null;
+		if ((encrypt) && (mHMACKey != null)) {							    
+			try {
+				Mac sha256_HMAC;
+				byte[] hmacOutput;
+				int counter = mHmacCounter;
+				mHmacCounter++;
+				
+				hmacPacket = new byte[20];
+				hmacPacket[0] = (byte)counter;
+				counter >>= 8;
+				hmacPacket[1] = (byte)counter;
+				counter >>= 8;
+				hmacPacket[2] = (byte)counter;
+				counter >>= 8;
+				hmacPacket[3] = (byte)counter;						
+				//calculate HMAC (counter|data)
+				sha256_HMAC = Mac.getInstance("HmacSHA256");
+			    sha256_HMAC.init(new SecretKeySpec(mHMACKey, "HmacSHA256"));
+			    sha256_HMAC.update(hmacPacket, 0, 4); //counter
+			    sha256_HMAC.update(result, 0, result.length); //data
+			    hmacOutput = sha256_HMAC.doFinal();			    
+			    System.arraycopy(hmacOutput, 0, hmacPacket, 4, 16);
+			    
+			    header[1] |= Packet.FLAG_HMAC;
+			} catch (Exception e) {				
+				hmacPacket = null;
+			}
+		}
+		
 		mBTService.write(header);
 		mBTService.write(result);	
+		if (hmacPacket != null) {
+			mBTService.write(hmacPacket);
+		}
+
 	}
 
 }

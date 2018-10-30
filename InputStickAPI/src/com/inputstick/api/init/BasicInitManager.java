@@ -61,18 +61,31 @@ public class BasicInitManager extends InitManager {
 				sendPacket(new Packet(true, Packet.CMD_FW_INFO));
 				break;
 			case Packet.CMD_FW_INFO:
-				onFWInfo(data, true, true, new Packet(true, Packet.CMD_INIT)); //TODO next FW: params!	
+				onFWInfo(data, true, true, new Packet(true, Packet.CMD_INIT)); 
 				break;
 			case Packet.CMD_INIT:
 				if (respCode == Packet.RESP_OK) {
 					initDone = true;
-					sendPacket(new Packet(true, Packet.CMD_HID_STATUS_REPORT));			
+					//sendPacket(new Packet(true, Packet.CMD_HID_STATUS_REPORT));
+					
+					if (mInfo.getFirmwareVersion() >= 100) {
+						sendPacket(new Packet(true, Packet.CMD_SET_UPDATE_INTERVAL, (byte)5)); //request 500ms update interval
+					} else {
+						setStatusUpdateInterval(100);
+					}
+					
 				} else {
 					mListener.onInitFailure(respCode);
 				}				
 				break;
+			case Packet.CMD_SET_UPDATE_INTERVAL:
+				if (respCode == Packet.RESP_OK) {
+					setStatusUpdateInterval(500);
+				}
+				break;
 			case Packet.CMD_INIT_AUTH:
-				initDone = onAuth(data, true, new Packet(true, Packet.CMD_INIT)); //TODO next FW: params!	
+			case Packet.CMD_INIT_AUTH_HMAC:
+				initDone = onAuth(data, true, new Packet(true, Packet.CMD_INIT)); 
 				break;
 			case Packet.CMD_HID_STATUS:
 				if (mKey == null) {
