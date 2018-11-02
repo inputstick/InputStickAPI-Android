@@ -21,6 +21,7 @@ public class HIDTransactionQueue {
 	private int mSentSinceLastNotification;	
 	private int mMaxReportsPerPacket;	
 	private int mInterfaceType;
+	private int mBufferEmptyCnt;
 	
 	
 	public HIDTransactionQueue(int interfaceType, ConnectionManager connectionManager, int bufferCapacity, int maxReportsPerPacket) {
@@ -57,33 +58,41 @@ public class HIDTransactionQueue {
 	
 	
 	public synchronized void update(HIDInfo hidInfo) {
+		int freedSpace = 0;
+		boolean bufferEmpty = false;
 		switch (mInterfaceType) {
 			case InputStickHID.INTERFACE_KEYBOARD:
-				mFreeSpace += hidInfo.getKeyboardReportsSentToHost();
+				freedSpace = hidInfo.getKeyboardReportsSentToHost();
+				bufferEmpty = hidInfo.isKeyboardReady();
 				break;
 			case InputStickHID.INTERFACE_MOUSE:
-				mFreeSpace += hidInfo.getMouseReportsSentToHost();
+				freedSpace = hidInfo.getMouseReportsSentToHost();
+				bufferEmpty = hidInfo.isMouseReady();
 				break;
 			case InputStickHID.INTERFACE_CONSUMER:
-				mFreeSpace += hidInfo.getConsumerReportsSentToHost();
+				freedSpace = hidInfo.getConsumerReportsSentToHost();
+				bufferEmpty = hidInfo.isConsumerReady();
 				break;
 			case InputStickHID.INTERFACE_RAW_HID:
-				mFreeSpace += hidInfo.getRawHIDReportsSentToHost();
+				freedSpace = hidInfo.getRawHIDReportsSentToHost();
+				bufferEmpty = hidInfo.isRawHIDReady();
 				break;				
 		}
+		
+		mFreeSpace += freedSpace;
+		
+		//failsafe:
 		if (mFreeSpace > mBufferCapacity) {
 			mFreeSpace = mBufferCapacity;
-		}
-		
-		/* TODO add as failsafe?
-		if (interfaceReady) {
-			interfaceReadyCnt++;
-			if (interfaceReadyCnt == 10) {
-				bufferFreeSpace = bufferSize;
+		}				
+		if (bufferEmpty) {
+			mBufferEmptyCnt++;
+			if (mBufferEmptyCnt == 10) {
+				mFreeSpace = mBufferCapacity;
 			}
 		} else {
-			interfaceReadyCnt = 0;
-		}*/
+			mBufferEmptyCnt = 0;
+		}
 		
 		
 		
@@ -142,7 +151,6 @@ public class HIDTransactionQueue {
 					mConnectionManager.sendPacket(p);
 					mFreeSpace -= reports;
 					mSentSinceLastNotification += reports;
-					System.out.println("SEND: " + reports);
 				}
 				
 				if (queue.isEmpty()) {
