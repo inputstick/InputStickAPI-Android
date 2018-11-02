@@ -11,6 +11,7 @@ public class BasicInitManager extends InitManager {
 	private int lastStatusParam;
 	private Handler handler;
 	private boolean cancelled;
+	private boolean doNotSetUpdateInterval;
 
 	public BasicInitManager(byte[] key) {
 		super(key);
@@ -71,7 +72,9 @@ public class BasicInitManager extends InitManager {
 					if (mInfo.getFirmwareVersion() >= 100) {
 						sendPacket(new Packet(true, Packet.CMD_SET_UPDATE_INTERVAL, (byte)5)); //request 500ms update interval
 					} else {
-						setStatusUpdateInterval(100);
+						if ( !doNotSetUpdateInterval) {
+							setStatusUpdateInterval(100);
+						}
 					}
 					
 				} else {
@@ -104,6 +107,10 @@ public class BasicInitManager extends InitManager {
 				}
 				break;
 		}
+	}
+	
+	public void disableStatusUpdateInterval() {
+		doNotSetUpdateInterval = true;
 	}
 	
 
