@@ -5,10 +5,11 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import com.inputstick.api.ConnectionManager;
+import com.inputstick.api.Packet;
 import com.inputstick.api.basic.InputStickHID;
 import com.inputstick.api.hid.HIDKeycodes;
 import com.inputstick.api.hid.HIDTransaction;
-import com.inputstick.api.hid.KeyboardReport;
+import com.inputstick.api.hid.ShortKeyboardReport;
 
 public abstract class KeyboardLayout {
 	
@@ -230,8 +231,8 @@ public abstract class KeyboardLayout {
 			}
 			//release key
 			if (typingSpeed == 0) {
-				t = new HIDTransaction();	
-				t.addReport(new KeyboardReport());
+				t = new HIDTransaction(Packet.CMD_HID_DATA_KEYB_FAST);	
+				t.addReport(new ShortKeyboardReport());
 				InputStickHID.addKeyboardTransaction(t, false);
 			}		
 			InputStickHID.flushKeyboardBuffer();
@@ -373,7 +374,7 @@ public abstract class KeyboardLayout {
 		
 	public static HIDTransaction getHIDTransaction(int[][] fastLUT, char c, byte additionalModifierKeys, int typingSpeed) {
 		byte modifiers, key, deadKey, deadKeyModifiers;
-		HIDTransaction t = new HIDTransaction();		
+		HIDTransaction t = new HIDTransaction(Packet.CMD_HID_DATA_KEYB_FAST);		
 		
 		for (int i = 0; i < fastLUT.length; i++) {
 			if (fastLUT[i][0] == c) {					
@@ -393,7 +394,7 @@ public abstract class KeyboardLayout {
 				
 				if (typingSpeed == 0) {
 					if (key == prevKey) {
-						t.addReport(new KeyboardReport());
+						t.addReport(new ShortKeyboardReport());
 					}
 					addPressAndReleaseReportsToHIDTransaction(t, modifiers, key, 0);
 				} else {
@@ -409,16 +410,16 @@ public abstract class KeyboardLayout {
 	
 	private static void addPressAndReleaseReportsToHIDTransaction(HIDTransaction t, byte modifiers, byte key, int typingSpeed) {
 		if (typingSpeed == 0) {
-			t.addReport(new KeyboardReport(modifiers, key));
+			t.addReport(new ShortKeyboardReport(modifiers, key));
 		} else {		
 			for (int i = 0; i < typingSpeed; i++) {
-				t.addReport(new KeyboardReport(modifiers, (byte)0));
+				t.addReport(new ShortKeyboardReport(modifiers, (byte)0));
 			}
 			for (int i = 0; i < typingSpeed; i++) {
-				t.addReport(new KeyboardReport(modifiers, key));
+				t.addReport(new ShortKeyboardReport(modifiers, key));
 			}
 			for (int i = 0; i < typingSpeed; i++) {
-				t.addReport(new KeyboardReport());
+				t.addReport(new ShortKeyboardReport());
 			}
 		}
 	}
@@ -428,21 +429,21 @@ public abstract class KeyboardLayout {
 		byte modifiers, key;
 		int scanCode;
 		
-		HIDTransaction t = new HIDTransaction();		
+		HIDTransaction t = new HIDTransaction(Packet.CMD_HID_DATA_KEYB_FAST);		
 		scanCode = getScanCode(lut, c);
 		if (scanCode > 0) {			
 			key = getKey(scanCode);
 			modifiers = getModifiers(lut, scanCode, c);
 			modifiers |= additionalModifierKeys;
 			
-			t.addReport(new KeyboardReport(modifiers, (byte)0));
-			t.addReport(new KeyboardReport(modifiers, key));
-			t.addReport(new KeyboardReport());
+			t.addReport(new ShortKeyboardReport(modifiers, (byte)0));
+			t.addReport(new ShortKeyboardReport(modifiers, key));
+			t.addReport(new ShortKeyboardReport());
 			
 			//add space after deadkey!
 			if (isDeadkey(deadkeys, c)) {
-				t.addReport(new KeyboardReport((byte)0, HIDKeycodes.KEY_SPACEBAR)); //this won't work if modifiers are present!
-				t.addReport(new KeyboardReport());
+				t.addReport(new ShortKeyboardReport((byte)0, HIDKeycodes.KEY_SPACEBAR)); //this won't work if modifiers are present!
+				t.addReport(new ShortKeyboardReport());
 			}
 			
 		} else {
@@ -455,16 +456,16 @@ public abstract class KeyboardLayout {
 				scanCode = getScanCode(lut, (char)deadkey);
 				key = getKey(scanCode);
 				modifiers = getModifiers(lut, scanCode, (char)deadkey);
-				t.addReport(new KeyboardReport(modifiers, (byte)0));
-				t.addReport(new KeyboardReport(modifiers, key));
-				t.addReport(new KeyboardReport());
+				t.addReport(new ShortKeyboardReport(modifiers, (byte)0));
+				t.addReport(new ShortKeyboardReport(modifiers, key));
+				t.addReport(new ShortKeyboardReport());
 				
 				scanCode = getScanCode(lut, (char)following);
 				key = getKey(scanCode);
 				modifiers = getModifiers(lut, scanCode, (char)following);
-				t.addReport(new KeyboardReport(modifiers, (byte)0));
-				t.addReport(new KeyboardReport(modifiers, key));
-				t.addReport(new KeyboardReport());
+				t.addReport(new ShortKeyboardReport(modifiers, (byte)0));
+				t.addReport(new ShortKeyboardReport(modifiers, key));
+				t.addReport(new ShortKeyboardReport());
 			}
 			
 		}
