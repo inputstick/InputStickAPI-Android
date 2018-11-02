@@ -67,12 +67,15 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	private static void initQueues(int firmwareVersion) {
 		if (firmwareVersion >= 100) {
 			keyboardQueue = new HIDTransactionQueue(INTERFACE_KEYBOARD, mConnectionManager, 128, 32);
+			mouseQueue = new HIDTransactionQueue(INTERFACE_MOUSE, mConnectionManager, 64, 32);
+			consumerQueue = new HIDTransactionQueue(INTERFACE_CONSUMER, mConnectionManager, 64, 32);
 		} else {
 			keyboardQueue = new HIDTransactionQueue(INTERFACE_KEYBOARD, mConnectionManager, 32, 32);
+			mouseQueue = new HIDTransactionQueue(INTERFACE_MOUSE, mConnectionManager, 32, 32);
+			consumerQueue = new HIDTransactionQueue(INTERFACE_CONSUMER, mConnectionManager, 32, 32);
 		}
-		mouseQueue = new HIDTransactionQueue(INTERFACE_MOUSE, mConnectionManager, 32, 32);
-		consumerQueue = new HIDTransactionQueue(INTERFACE_CONSUMER, mConnectionManager, 32, 32);
-		rawHIDQueue = new HIDTransactionQueue(INTERFACE_RAW_HID, mConnectionManager);
+
+		rawHIDQueue = new HIDTransactionQueue(INTERFACE_RAW_HID, mConnectionManager, 2, 1);
 	}
 	
 	/*
