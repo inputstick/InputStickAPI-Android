@@ -15,8 +15,8 @@ public class HIDTransactionQueue {
 	private final LinkedList<HIDTransaction> queue;
 	private final ConnectionManager mConnectionManager;
 	private final byte cmd;
-	private final int mBufferCapacity;	
 	
+	private int mBufferCapacity;		
 	private int mFreeSpace;	
 	private int mSentSinceLastNotification;	
 	private int mMaxReportsPerPacket;	
@@ -56,6 +56,12 @@ public class HIDTransactionQueue {
 		this(interfaceType, connectionManager, DEFAULT_BUFFER_SIZE, DEFAULT_MAX_REPORTS_PER_PACKET);
 	}
 	
+	public synchronized void setCapacity(int capacity) {
+		int diff = capacity - mBufferCapacity;
+		mBufferCapacity += diff;
+		mFreeSpace += diff;
+	}
+	
 	
 	public synchronized void update(HIDInfo hidInfo) {
 		int freedSpace = 0;
@@ -93,8 +99,6 @@ public class HIDTransactionQueue {
 		} else {
 			mBufferEmptyCnt = 0;
 		}
-		
-		
 		
 		if (queue.isEmpty()) {
 			if ((mFreeSpace == mBufferCapacity) && (mSentSinceLastNotification != 0)) {

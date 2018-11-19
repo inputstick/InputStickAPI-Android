@@ -62,6 +62,9 @@ public class Packet {
 	public static final byte CMD_INIT_AUTH_HMAC =	 		0x30;
 	public static final byte CMD_SET_UPDATE_INTERVAL =	 	0x31;
 	
+	public static final byte CMD_KEYGEN_GENERATE =		 	0x33;
+	public static final byte CMD_KEYGEN_TEST =	 			0x34;
+	public static final byte CMD_KEYGEN_VERIFY =	 		0x35;
 	
 	
 	public static final byte CMD_DUMMY =	 				(byte)0xFF;
