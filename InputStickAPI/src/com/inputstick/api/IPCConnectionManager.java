@@ -2,12 +2,14 @@ package com.inputstick.api;
 
 import java.lang.ref.WeakReference;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -126,6 +128,7 @@ public class IPCConnectionManager extends ConnectionManager {
 		mCtx = app.getApplicationContext();
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	public void connect() {
 		PackageManager pm = mCtx.getPackageManager();
@@ -141,8 +144,12 @@ public class IPCConnectionManager extends ConnectionManager {
 		if (exists) {
 			Intent intent = new Intent();									
 			intent.setComponent(new ComponentName("com.inputstick.apps.inputstickutility","com.inputstick.apps.inputstickutility.service.InputStickService"));
-			intent.putExtra("TIME", System.currentTimeMillis());
-			mCtx.startService(intent);
+			intent.putExtra("TIME", System.currentTimeMillis());			
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+				mCtx.startService(intent);
+			} else {
+				mCtx.startForegroundService(intent);
+			}			
 			mCtx.bindService(intent, mConnection, Context.BIND_AUTO_CREATE); 
 	        if (mBound) {
 	        	//already bound
