@@ -54,29 +54,16 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	
 	private static void init() {
 		mHIDInfo = new HIDInfo();	
-		keyboardQueue = null;
-		mouseQueue = null;
-		consumerQueue = null;
-		rawHIDQueue = null;
+		keyboardQueue = new HIDTransactionQueue(INTERFACE_KEYBOARD, mConnectionManager, 32, 32);
+		mouseQueue = new HIDTransactionQueue(INTERFACE_MOUSE, mConnectionManager, 32, 32);
+		consumerQueue = new HIDTransactionQueue(INTERFACE_CONSUMER, mConnectionManager, 32, 32);
+		rawHIDQueue = new HIDTransactionQueue(INTERFACE_RAW_HID, mConnectionManager, 2, 1);
 		
 		mConnectionManager.addStateListener(instance);
 		mConnectionManager.addDataListener(instance);
 		mConnectionManager.connect();		
 	}
 	
-	private static void initQueues(int firmwareVersion) {
-		if (firmwareVersion >= 100) {
-			keyboardQueue = new HIDTransactionQueue(INTERFACE_KEYBOARD, mConnectionManager, 128, 32);
-			mouseQueue = new HIDTransactionQueue(INTERFACE_MOUSE, mConnectionManager, 64, 32);
-			consumerQueue = new HIDTransactionQueue(INTERFACE_CONSUMER, mConnectionManager, 64, 32);
-		} else {
-			keyboardQueue = new HIDTransactionQueue(INTERFACE_KEYBOARD, mConnectionManager, 32, 32);
-			mouseQueue = new HIDTransactionQueue(INTERFACE_MOUSE, mConnectionManager, 32, 32);
-			consumerQueue = new HIDTransactionQueue(INTERFACE_CONSUMER, mConnectionManager, 32, 32);
-		}
-
-		rawHIDQueue = new HIDTransactionQueue(INTERFACE_RAW_HID, mConnectionManager, 2, 1);
-	}
 	
 	/*
 	 * Returns download InputStickUtility AlertDialog if InputStickUtility is not installed. Returns null is InputStickUtility application is installed.
@@ -704,8 +691,12 @@ public class InputStickHID implements InputStickStateListener, InputStickDataLis
 	public void onInputStickData(byte[] data) {
 		byte cmd = data[0];
 		if (cmd == Packet.CMD_FW_INFO) {
-			mDeviceInfo = new DeviceInfo(data);		
-			initQueues(mDeviceInfo.getFirmwareVersion());			
+			mDeviceInfo = new DeviceInfo(data);								
+			if (mDeviceInfo.getFirmwareVersion() >= 100) {
+				keyboardQueue.setCapacity(128);
+				mouseQueue.setCapacity(64);
+				consumerQueue.setCapacity(64);		
+			} 				
 		}
 		
 		if (cmd == Packet.CMD_HID_DATA_RAW) {
