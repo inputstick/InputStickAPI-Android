@@ -1,5 +1,10 @@
 # InputStickAPI for Android OS
 
+## Important:
+Upcoming InputStickUtility app update will no longer work with apps compiled using earlier API versions. Please make sure that your app is compiled using latest API version! Unfortunately latest Android version no longer allows to maintain backwards compatibility.
+
+This will affect only apps using IPC connection method (with InputStickUtility as a proxy). Apps that connect directly to InputStick or send broadcasts to InputStickUtility will not be affected.
+
 ## About InputStick:
 InputStick is an Android-compatible USB receiver. It allows to use your smartphone as a wireless keyboard, mouse, multimedia and game controller. 
 
