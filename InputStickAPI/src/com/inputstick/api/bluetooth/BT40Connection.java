@@ -27,41 +27,36 @@ public class BT40Connection extends BTConnection {
 	
 	private static final int HW_NONE = 0;
 	private static final int HW_HM = 1;
-	private static final int HW_DA = 2;
+	private static final int HW_NRF = 2;
 	
 	private static final int CONNECTION_TIMEOUT = 10000;
     
 	//CC2540/HM10
-	private static final String MOD_CHARACTERISTIC_CONFIG = 	"00002902-0000-1000-8000-00805f9b34fb";
-	private static final String MOD_CONF = 						"0000ffe0-0000-1000-8000-00805f9b34fb";
-	private static final String MOD_RX_TX = 					"0000ffe1-0000-1000-8000-00805f9b34fb";															  	
-	private static final UUID 	UUID_HM_RX_TX = 				UUID.fromString(MOD_RX_TX);
-	
-	//DA14580
-	private static final String DA_SPS = 					"0783b03e-8535-b5a0-7140-a304d2495cb7";
-	private static final String DA_SPS_TX =					"0783b03e-8535-b5a0-7140-a304d2495cb8";	
-	private static final String DA_SPS_RX =					"0783b03e-8535-b5a0-7140-a304d2495cba";	
-	private static final String DA_DESC =					"00002901-0000-1000-8000-00805f9b34fb";
-	
-	private static final UUID 	DA_UUID_RX = 				UUID.fromString(DA_SPS_RX);	 
-	private static final UUID 	DA_UUID_TX = 				UUID.fromString(DA_SPS_TX);	
-	private static final UUID 	DA_UUID_DESC = 				UUID.fromString(DA_DESC);
-    
+	public static final String UUID_HM_DESC = 	"00002902-0000-1000-8000-00805f9b34fb";
+	public static final String UUID_HM_SPS = 	"0000ffe0-0000-1000-8000-00805f9b34fb";
+	public static final String UUID_HM_RX_TX =  "0000ffe1-0000-1000-8000-00805f9b34fb";
+
+	//NRF
+	public static final String UUID_NRF_DESC =  "00002902-0000-1000-8000-00805f9b34fb";
+	public static final String UUID_NRF_SPS =  	"6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+	public static final String UUID_NRF_RX =  	"6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+	public static final String UUID_NRF_TX =  	"6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+
+	private Handler handler;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothGatt mBluetoothGatt;
+	private BluetoothGattCharacteristic characteristicRx;
+	private BluetoothGattCharacteristic characteristicTx;
+	private int hardwareType; //connected hardware type: HM10/NRF
 
     private LinkedList<byte[]> txBuffer;
     private boolean canSend;
     private long lastRxTime;
-    private int mStatusUpdateInterval; //prevents packet lost caused by BLE stack
+    private int mStatusUpdateInterval; //prevents packet lost caused by HM10 & BLE stack
     
     private boolean isConnecting;
-    private Handler handler;
     
-    private int hardwareType; //connected hardware type: hm10/da14580
-    
-    BluetoothGattCharacteristic characteristicRx;
-    BluetoothGattCharacteristic characteristicTx;
+
 	
     public BT40Connection(Application app, BTService btService, String mac, boolean reflections) {
     	super(app, btService, mac, reflections);    	     	
@@ -69,7 +64,8 @@ public class BT40Connection extends BTConnection {
 		mBluetoothAdapter = bluetoothManager.getAdapter();    	
 		mStatusUpdateInterval = 0;
     }
-    
+
+	@SuppressLint("MissingPermission")
 	@Override
 	public void connect() {
 		Util.log(Util.FLAG_LOG_BT_CALLS, "Connect (4.0)");		
@@ -93,6 +89,7 @@ public class BT40Connection extends BTConnection {
 		}		
 	}
 
+	@SuppressLint("MissingPermission")
 	@Override
 	public void disconnect() {
 		Util.log(Util.FLAG_LOG_BT_CALLS, "Disconnect (4.0)");
@@ -114,6 +111,10 @@ public class BT40Connection extends BTConnection {
 		mStatusUpdateInterval = interval;
 		lastRxTime = System.currentTimeMillis() - mStatusUpdateInterval; //force to wait for next update packet
 		Util.log(Util.FLAG_LOG_BT_CALLS, "Status Update Interval set to: " + interval);
+
+		if (hardwareType == HW_NRF) {
+			mStatusUpdateInterval = 0;
+		}
 	}
 
 	@Override
@@ -208,8 +209,9 @@ public class BT40Connection extends BTConnection {
 			}
 		}
 		return null;
-	}		
-	
+	}
+
+	@SuppressLint("MissingPermission")
 	private synchronized void sendNext() {
 		//prevent packet lost (do not send data if we know that in next few ms data will be received (sending data now could result in a packet lost in some cases)
 		long time = System.currentTimeMillis();
@@ -223,21 +225,10 @@ public class BT40Connection extends BTConnection {
 				canSend = false;
 				boolean r1 = false;
 				boolean r2 = false;
-				
-				if (hardwareType == HW_HM) {
-					BluetoothGattService gattService = mBluetoothGatt.getService(UUID.fromString(MOD_CONF));
-					BluetoothGattCharacteristic gattCharacteristic = gattService.getCharacteristic(UUID_HM_RX_TX);
-					r1 = gattCharacteristic.setValue(data);
-					gattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);		
-					r2 = mBluetoothGatt.writeCharacteristic(gattCharacteristic);
-				}
-				if (hardwareType == HW_DA) {
-					BluetoothGattService gattService = mBluetoothGatt.getService(UUID.fromString(DA_SPS));  
-					BluetoothGattCharacteristic gattCharacteristic = gattService.getCharacteristic(DA_UUID_RX);  					
-					r1 = gattCharacteristic.setValue(data);
-					gattCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);		
-					r2 = mBluetoothGatt.writeCharacteristic(gattCharacteristic);
-				}
+
+				r1 = characteristicTx.setValue(data);
+				characteristicTx.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+				r2 = mBluetoothGatt.writeCharacteristic(characteristicTx);
 				
 				Util.log(Util.FLAG_LOG_BT_PACKET, "sendNext: " + r1 + " / " + r2);
 			} else {
@@ -249,7 +240,8 @@ public class BT40Connection extends BTConnection {
 	
 	
 	private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
-		
+
+		@SuppressLint("MissingPermission")
 		@Override
 		public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
 			Util.log(Util.FLAG_LOG_BT_ADAPTER, "onConnectionStateChange" + newState);
@@ -265,43 +257,34 @@ public class BT40Connection extends BTConnection {
 			}
 		}
 
+		@SuppressLint("MissingPermission")
 		@Override
-		public void onServicesDiscovered(BluetoothGatt gatt, int status) {								
-			if (status == BluetoothGatt.GATT_SUCCESS) {		
+		public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+			if (status == BluetoothGatt.GATT_SUCCESS) {
 				Util.log(Util.FLAG_LOG_BT_ADAPTER, "onServicesDiscovered: OK");
-				List<BluetoothGattService> gattServices = null;		
-		        if (mBluetoothGatt != null) {
-		        	gattServices = mBluetoothGatt.getServices();
-		        }
-		        //BluetoothGattCharacteristic characteristicRxTx = null;
-		        if (gattServices != null) {
-			        String uuid = null;
-			        
-			        for (BluetoothGattService gattService : gattServices) {
-			            uuid = gattService.getUuid().toString();
-			            Util.log(Util.FLAG_LOG_BT_ADAPTER, "uuid: " + uuid);
-			            if (MOD_CONF.equals(uuid)) {			            	
-			            	characteristicRx = gattService.getCharacteristic(UUID_HM_RX_TX);
-			            	characteristicTx = characteristicRx;
-				    		 if (characteristicRx == null) {
-				    			 mBTservice.connectionFailed(false, InputStickError.ERROR_BLUETOOTH_BT40_NO_SPP_SERVICE);
-				    		 } else {
-				    			 hardwareType = HW_HM;
-				    		 }
-				    		 break;
-			            }
-			            
-			            if (DA_SPS.equals(uuid)) {		
-			            	characteristicRx = gattService.getCharacteristic(DA_UUID_RX);
-				    		characteristicTx = gattService.getCharacteristic(DA_UUID_TX);				    		 
-							if (characteristicTx == null || characteristicRx == null) {
-								mBTservice.connectionFailed(false, InputStickError.ERROR_BLUETOOTH_BT40_NO_SPP_SERVICE);
-							} else {
-								hardwareType = HW_DA;
-							}
-			            }
-			        }				
-		        }
+
+				List<BluetoothGattService> gattServices = null;
+				if (mBluetoothGatt != null) {
+					gattServices = mBluetoothGatt.getServices();
+				}
+				if (gattServices != null) {
+					for (BluetoothGattService gattService : gattServices) {
+						if (UUID_HM_SPS.equals(gattService.getUuid().toString())) {
+							characteristicRx = gattService.getCharacteristic(UUID.fromString(UUID_HM_RX_TX));
+							characteristicTx = characteristicRx;
+							hardwareType = HW_HM;
+						}
+						if (UUID_NRF_SPS.equals(gattService.getUuid().toString())) {
+							characteristicRx = gattService.getCharacteristic(UUID.fromString(UUID_NRF_RX));
+							characteristicTx = gattService.getCharacteristic(UUID.fromString(UUID_NRF_TX));
+							hardwareType = HW_NRF;
+						}
+						if (characteristicRx != null && characteristicTx != null) {
+							break;
+						}
+					}
+				}
+
 		        if (hardwareType == HW_HM) {
 	            	Util.log(Util.FLAG_LOG_BT_ADAPTER, "Serial service discovered (HM type)");
 		        	//enable notifications
@@ -309,7 +292,7 @@ public class BT40Connection extends BTConnection {
 		            result = mBluetoothGatt.setCharacteristicNotification(characteristicRx, true);	
 		            Util.log(Util.FLAG_LOG_BT_ADAPTER, "setCharacteristicNotification: " + result);
 		            
-	                BluetoothGattDescriptor descriptor = characteristicRx.getDescriptor(UUID.fromString(MOD_CHARACTERISTIC_CONFIG));		                
+	                BluetoothGattDescriptor descriptor = characteristicRx.getDescriptor(UUID.fromString(UUID_HM_DESC));
 	                
 	                result = descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);	
 					Util.log(Util.FLAG_LOG_BT_ADAPTER, "setValue: " + result);
@@ -317,23 +300,21 @@ public class BT40Connection extends BTConnection {
 	                result = mBluetoothGatt.writeDescriptor(descriptor);	
 	                Util.log(Util.FLAG_LOG_BT_ADAPTER, "writeDescriptor: " + result);
 	                Util.log(Util.FLAG_LOG_BT_ADAPTER, "Descriptor UUID: " + descriptor.getUuid());
-		        } else if (hardwareType == HW_DA) {
+		        } else if (hardwareType == HW_NRF) {
 		        	Util.log(Util.FLAG_LOG_BT_ADAPTER, "Serial service discovered (DA type)");
 		        	//enable notifications
 		        	boolean result;		
 		        	result = mBluetoothGatt.setCharacteristicNotification(characteristicRx, true);	
 		        	Util.log(Util.FLAG_LOG_BT_ADAPTER, "setCharacteristicNotification: " + result);
-		        	result = mBluetoothGatt.setCharacteristicNotification(characteristicTx, true);	
-		        	Util.log(Util.FLAG_LOG_BT_ADAPTER, "setCharacteristicNotification: " + result);
 		        	
-		        	BluetoothGattDescriptor descriptor = characteristicTx.getDescriptor(DA_UUID_DESC);		        	
+		        	BluetoothGattDescriptor descriptor = characteristicRx.getDescriptor(UUID.fromString(UUID_NRF_DESC));
 		        	
-		        	result = descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);	
+		        	result = descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
 		        	Util.log(Util.FLAG_LOG_BT_ADAPTER, "setValue: " + result);
 		        	
 		        	result = mBluetoothGatt.writeDescriptor(descriptor);	
 	                Util.log(Util.FLAG_LOG_BT_ADAPTER, "writeDescriptor: " + result);
-	                Util.log(Util.FLAG_LOG_BT_ADAPTER, "Descriptor UUID: " + descriptor.getUuid());		        
+	                Util.log(Util.FLAG_LOG_BT_ADAPTER, "Descriptor UUID: " + descriptor.getUuid());
 		        } else {
 		        	Util.log(Util.FLAG_LOG_BT_EXCEPTION, "Serial service NOT found");		        	
 		        	mBTservice.connectionFailed(false, InputStickError.ERROR_BLUETOOTH_BT40_NO_SPP_SERVICE);
