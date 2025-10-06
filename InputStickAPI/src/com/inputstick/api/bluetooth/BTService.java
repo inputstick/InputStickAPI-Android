@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 
 import com.inputstick.api.InputStickError;
@@ -45,7 +46,7 @@ public class BTService {
     private boolean turnBluetoothOn;
     private boolean receiverRegistered;    
     
-    private Handler mDelayHandler = new Handler();
+    private Handler mDelayHandler = new Handler(Looper.getMainLooper());
 	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -147,7 +148,11 @@ public class BTService {
 					    	turnBluetoothOn = true;					    	
 					    	if ( !receiverRegistered) {
 					    		IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-					    		mCtx.registerReceiver(mReceiver, filter);
+					    		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+					    			mCtx.registerReceiver(mReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+					    		} else {
+					    			mCtx.registerReceiver(mReceiver, filter);
+					    		}
 					    		receiverRegistered = true;
 					    	}	    	
 					    	
