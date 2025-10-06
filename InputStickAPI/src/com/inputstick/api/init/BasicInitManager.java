@@ -1,6 +1,7 @@
 package com.inputstick.api.init;
 
 import android.os.Handler;
+import android.os.Looper;
 
 import com.inputstick.api.InputStickError;
 import com.inputstick.api.Packet;
@@ -26,7 +27,7 @@ public class BasicInitManager extends InitManager {
 		initDone = false;
 		sendPacket(new Packet(true, Packet.CMD_RUN_FW));	
 		
-		handler = new Handler();
+		handler = new Handler(Looper.getMainLooper());
 		handler.postDelayed(new Runnable() {
 		    @Override
 		    public void run() {
