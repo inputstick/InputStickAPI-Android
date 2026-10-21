@@ -15,7 +15,12 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -30,6 +35,8 @@ public class BT40Connection extends BTConnection {
 	private static final int HW_NRF = 2;
 	
 	private static final int CONNECTION_TIMEOUT = 10000;
+	// Cold cache: getRemoteDevice() is typed as public. A short scan learns a static-random address.
+	private static final int ADDRESS_SCAN_TIMEOUT = 2500;
     
 	//CC2540/HM10
 	public static final String UUID_HM_DESC = 	"00002902-0000-1000-8000-00805f9b34fb";
@@ -55,7 +62,11 @@ public class BT40Connection extends BTConnection {
     private int mStatusUpdateInterval; //prevents packet lost caused by HM10 & BLE stack
     
     private boolean isConnecting;
-    
+    private boolean mGattStarted;
+    private boolean mAbort;
+    private BluetoothLeScanner mScanner;
+    private ScanCallback mScanCallback;
+    private Runnable mScanTimeout;
 
 	
     public BT40Connection(Application app, BTService btService, String mac, boolean reflections) {
@@ -68,31 +79,126 @@ public class BT40Connection extends BTConnection {
 	@SuppressLint("MissingPermission")
 	@Override
 	public void connect() {
-		Util.log(Util.FLAG_LOG_BT_CALLS, "Connect (4.0)");		
+		Util.log(Util.FLAG_LOG_BT_CALLS, "Connect (4.0)");
 		final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mMac);
-		if (device != null) {			
-			mBluetoothGatt = device.connectGatt(mCtx, false, mGattCallback);
-			hardwareType = HW_NONE;
-			isConnecting = true;
-			handler = new Handler(Looper.getMainLooper());
-			handler.postDelayed(new Runnable() {
-			    @Override
-			    public void run() {
-					if (isConnecting) {
-						disconnect();
-						mBTservice.connectionFailed(true, InputStickError.ERROR_BLUETOOTH_CONNECTION_FAILED);
-					}
-			    }
-			}, CONNECTION_TIMEOUT);
-		} else {
+		if (device == null) {
 			mBTservice.connectionFailed(false, InputStickError.ERROR_BLUETOOTH_NO_REMOTE_DEVICE);
-		}		
+			return;
+		}
+		// Until a scan or a previous connection, Android reports DEVICE_TYPE_UNKNOWN and
+		// sends the LE create-connection as a public address. BT4/BT5 sticks advertise a
+		// static random address, so that request never completes.
+		if (device.getType() == BluetoothDevice.DEVICE_TYPE_UNKNOWN && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			if (startAddressScan(device)) {
+				return;
+			}
+		}
+		connectGatt(device);
+	}
+
+	@SuppressLint("MissingPermission")
+	private boolean startAddressScan(final BluetoothDevice fallback) {
+		BluetoothLeScanner scanner = mBluetoothAdapter.getBluetoothLeScanner();
+		if (scanner == null) {
+			return false;
+		}
+		if (handler == null) {
+			handler = new Handler(Looper.getMainLooper());
+		}
+		mScanner = scanner;
+		mScanCallback = new ScanCallback() {
+			@Override
+			public void onScanResult(int callbackType, ScanResult result) {
+				BluetoothDevice found = result.getDevice();
+				if (found != null && mMac.equalsIgnoreCase(found.getAddress())) {
+					Util.log(Util.FLAG_LOG_BT_CALLS, "Address scan hit");
+					stopAddressScan();
+					connectGatt(found);
+				}
+			}
+
+			@Override
+			public void onScanFailed(int errorCode) {
+				Util.log(Util.FLAG_LOG_BT_EXCEPTION, "Address scan failed: " + errorCode);
+				stopAddressScan();
+				connectGatt(fallback);
+			}
+		};
+		try {
+			ScanSettings settings = new ScanSettings.Builder()
+					.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+					.build();
+			// Do not filter with setDeviceAddress(): that filter matches public addresses only.
+			scanner.startScan(null, settings, mScanCallback);
+		} catch (Exception e) {
+			Util.log(Util.FLAG_LOG_BT_EXCEPTION, "Address scan not started");
+			mScanCallback = null;
+			mScanner = null;
+			return false;
+		}
+		Util.log(Util.FLAG_LOG_BT_CALLS, "Address scan started");
+		mScanTimeout = new Runnable() {
+			@Override
+			public void run() {
+				if (mScanCallback != null) {
+					Util.log(Util.FLAG_LOG_BT_CALLS, "Address scan timed out");
+					stopAddressScan();
+					connectGatt(fallback);
+				}
+			}
+		};
+		handler.postDelayed(mScanTimeout, ADDRESS_SCAN_TIMEOUT);
+		return true;
+	}
+
+	@SuppressLint("MissingPermission")
+	private void stopAddressScan() {
+		if (handler != null && mScanTimeout != null) {
+			handler.removeCallbacks(mScanTimeout);
+			mScanTimeout = null;
+		}
+		if (mScanner != null && mScanCallback != null) {
+			try {
+				mScanner.stopScan(mScanCallback);
+			} catch (Exception e) {
+			}
+		}
+		mScanCallback = null;
+		mScanner = null;
+	}
+
+	@SuppressLint("MissingPermission")
+	private void connectGatt(BluetoothDevice device) {
+		synchronized (this) {
+			if (mAbort || mGattStarted || device == null) {
+				return;
+			}
+			mGattStarted = true;
+		}
+		stopAddressScan();
+		mBluetoothGatt = device.connectGatt(mCtx, false, mGattCallback);
+		hardwareType = HW_NONE;
+		isConnecting = true;
+		if (handler == null) {
+			handler = new Handler(Looper.getMainLooper());
+		}
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				if (isConnecting) {
+					disconnect();
+					mBTservice.connectionFailed(true, InputStickError.ERROR_BLUETOOTH_CONNECTION_FAILED);
+				}
+			}
+		}, CONNECTION_TIMEOUT);
 	}
 
 	@SuppressLint("MissingPermission")
 	@Override
 	public void disconnect() {
 		Util.log(Util.FLAG_LOG_BT_CALLS, "Disconnect (4.0)");
+		mAbort = true;
+		stopAddressScan();
 		txBuffer = null;
 		try {
 			if (mBluetoothGatt != null) {
